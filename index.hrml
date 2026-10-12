@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DWITI Logistics Portal</title>
+    
+    <!-- PWA & Mobile Web App Meta Tags -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#0a192f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dwiti Logistics">
+    <link rel="apple-touch-icon" href="./icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+    <div id="toastNotification" class="toast-card">
+        <i id="toastIcon" class="fa-solid fa-circle-check"></i>
+        <span id="toastMsg">Notification</span>
+    </div>
+
+    <!-- MY PARTIES LIST MODAL -->
+    <div class="party-modal-overlay" id="partyModalOverlay" onclick="closePartyModal(event)">
+        <div class="party-modal-card" onclick="event.stopPropagation()">
+            <div class="party-modal-header">
+                <div>
+                    <h3><i class="fa-solid fa-address-book"></i> <span id="partyModalTitleText">My Parties List</span></h3>
+                    <p id="partyModalSubtitle">Select or Call a party</p>
+                </div>
+                <button type="button" class="btn-close-modal" onclick="closePartyModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="partyModalContent" class="party-list-items"></div>
+        </div>
+    </div>
+
+    <!-- ADD PARTY POPUP MODAL -->
+    <div class="party-modal-overlay" id="addPartyModalOverlay" onclick="closeAddPartyModal(event)">
+        <div class="party-modal-card" onclick="event.stopPropagation()">
+            <div class="party-modal-header">
+                <div>
+                    <h3><i class="fa-solid fa-user-plus"></i> <span id="addPartyModalTitleText">Add New Party</span></h3>
+                    <p>Enter details to save to your party directory</p>
+                </div>
+                <button type="button" class="btn-close-modal" onclick="closeAddPartyModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="addPartyForm" style="padding: 16px;" onsubmit="handlePartySaveSubmit(event)">
+                <div class="field-grid" style="grid-template-columns: 1fr;">
+                    <div class="input-group">
+                        <label>Party / Company Name *</label>
+                        <input type="text" id="popPartyName" placeholder="Enter business or person name" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Contact Phone Number *</label>
+                        <input type="tel" id="popPartyPhone" placeholder="10-digit mobile number" required>
+                    </div>
+                    <div class="input-group">
+                        <label>GST Number (Optional)</label>
+                        <input type="text" id="popPartyGst" placeholder="e.g. 27AAAAA0000A1Z5">
+                    </div>
+                    <div class="input-group">
+                        <label>City / Area *</label>
+                        <input type="text" id="popPartyCity" placeholder="e.g. Kalher, Vashi, Rabale" required>
+                    </div>
+                    <div class="input-group" id="popDistanceGroup" style="display:none;">
+                        <label>Distance from Kalher Hub (km) *</label>
+                        <input type="number" id="popPartyDistance" placeholder="e.g. 25" min="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Google Maps Location Link *</label>
+                        <input type="url" id="popPartyMap" placeholder="https://maps.google.com/..." required>
+                    </div>
+                    <div class="input-group">
+                        <label>Complete Street Address *</label>
+                        <input type="text" id="popPartyAddress" placeholder="Building, Gala, Road Details" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 16px;">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Party Details
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TERMS & CONDITIONS MODAL -->
+    <div class="party-modal-overlay" id="tcModalOverlay" style="display:none;" onclick="closeTcModal()">
+        <div class="party-modal-card" style="max-height:85vh; display:flex; flex-direction:column;" onclick="event.stopPropagation()">
+            <div class="party-modal-header">
+                <div>
+                    <h3><i class="fa-solid fa-file-contract"></i> Terms &amp; Conditions / नियम और अटी</h3>
+                    <p>Dwiti Logistics Policy</p>
+                </div>
+                <button type="button" class="btn-close-modal" onclick="closeTcModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div style="padding:15px; overflow-y:auto; font-size:12px; line-height:1.6; color:#0f4c81; display:flex; flex-direction:column; gap:8px;">
+                <p><strong>1. Timings &amp; Operational Schedule:</strong> Booking Cut-off 08:00 AM | Pickup 09:00-10:00 AM | Delivery Same day 02:00-04:00 PM.</p>
+                <p><strong>2. Parcel Size &amp; Weight Slabs:</strong> Slab 1 (10-50 kg, max 6 cu.ft) | Slab 2 (51-100 kg, max 12 cu.ft). Extra charges apply if exceeded.</p>
+                <p><strong>3. Loading / Unloading &amp; Hamali Policy:</strong> Loading and unloading is customer's responsibility. No hamali services provided.</p>
+                <p><strong>4. Waiting Time &amp; Delay Charges:</strong> Total 15-20 minutes free time. Extra 0-30 min waiting: Flat ₹100/- charge.</p>
+                <p><strong>5. Damage, Loss &amp; Accident Policy:</strong> Transit damage compensation: 5x of booking amount or max ₹2000/- (whichever is less).</p>
+                <p><strong>6. Sender &amp; Receiver Responsibility:</strong> Proper safe packaging is sender's duty. Receiver must be present (02:00-04:00 PM).</p>
+                <p><strong>7. Payment Terms:</strong> Advance payment or agreed credit required. Delivery handed over only after payment clearance.</p>
+                <p><strong>8. Prohibited Items:</strong> Drugs, weapons, chemicals, cash, jewelry strictly banned.</p>
+                <p><strong>9. Force Majeure:</strong> No liability for delays due to floods, roadblocks, strikes, government restrictions.</p>
+                <p><strong>10. Jurisdiction:</strong> All disputes subject to local court jurisdiction only.</p>
+            </div>
+            <div style="padding:10px 15px; border-top:1px solid #38bdf8;">
+                <button type="button" class="btn btn-primary" onclick="agreeTcAndClose()">I Understand &amp; Agree / मला मान्य आहे</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTH CARD -->
+    <div class="auth-wrapper" id="authWrapper">
+        <div class="auth-card">
+            <div class="brand-logo-container">
+                <img src="https://i.postimg.cc/CL8jFGXK/IMG-20261012-WA0015-2.jpg" alt="DWITI LOGISTICS" class="app-hero-logo">
+            </div>
+            <h2>Enterprise Portal</h2>
+            <p class="subtitle">Kalher to Navi Mumbai Express B2B &amp; B2C Freight</p>
+
+            <div class="auth-tabs">
+                <button type="button" class="tab-btn active" id="loginTabBtn" onclick="switchAuthTab('login')">Sign In</button>
+                <button type="button" class="tab-btn" id="signupTabBtn" onclick="switchAuthTab('signup')">Sign Up</button>
+            </div>
+
+            <!-- LOGIN -->
+            <div id="loginSection" class="auth-form-container">
+                <div class="input-group">
+                    <label><i class="fa-regular fa-building"></i> Company Name</label>
+                    <input type="text" id="loginCompanyName" placeholder="e.g. Acme Pharma" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fa-solid fa-phone"></i> Registered Mobile Number</label>
+                    <div class="phone-input-wrap">
+                        <span class="prefix">+91</span>
+                        <input type="tel" id="loginPhone" maxlength="10" placeholder="9876543210" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label><i class="fa-solid fa-shield-halved"></i> Company Security Code / PIN (4 Digits)</label>
+                    <input type="password" id="loginCompanyCode" maxlength="4" placeholder="e.g. 1234" required>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:8px; margin: 4px 0;">
+                    <input type="checkbox" id="loginAgreeTC" style="width:16px; height:16px; cursor:pointer;">
+                    <label for="loginAgreeTC" style="font-size:12px; cursor:pointer;">I agree to <a href="javascript:void(0)" onclick="openTcModal()" style="color:var(--primary); font-weight:700;">Terms &amp; Conditions</a></label>
+                </div>
+
+                <button type="button" id="loginSubmitBtn" class="btn btn-primary" onclick="initiateLogin()">
+                    Sign In to Portal <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- SIGN UP -->
+            <div id="signupSection" class="auth-form-container" style="display: none;">
+                <div class="input-group">
+                    <label><i class="fa-regular fa-building"></i> Company Name</label>
+                    <input type="text" id="regCompanyName" placeholder="Business Name" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fa-solid fa-tags"></i> Company / Industry Type</label>
+                    <select id="regCompanyType" required>
+                        <option value="">-- Select Industry --</option>
+                        <option value="Medicines & Pharma">Medicines & Pharma</option>
+                        <option value="Textiles & Apparel">Textiles & Apparel</option>
+                        <option value="Electronics & IT">Electronics & IT</option>
+                        <option value="FMCG & Groceries">FMCG & Groceries</option>
+                        <option value="Industrial & Hardware">Industrial & Hardware</option>
+                        <option value="Other">Other Category</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label><i class="fa-solid fa-phone"></i> Mobile Number</label>
+                    <div class="phone-input-wrap">
+                        <span class="prefix">+91</span>
+                        <input type="tel" id="regPhone" maxlength="10" placeholder="9876543210" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="label-with-action">
+                        <label><i class="fa-solid fa-key"></i> Company Code / PIN (4 Digits)</label>
+                        <button type="button" class="btn-gen-code" onclick="autoGenerateCompanyCode()">
+                            <i class="fa-solid fa-arrows-rotate"></i> Auto Generate
+                        </button>
+                    </div>
+                    <input type="text" id="regCompanyCode" maxlength="4" placeholder="4-digit PIN" required>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:8px; margin: 4px 0;">
+                    <input type="checkbox" id="regAgreeTC" style="width:16px; height:16px; cursor:pointer;">
+                    <label for="regAgreeTC" style="font-size:12px; cursor:pointer;">I agree to <a href="javascript:void(0)" onclick="openTcModal()" style="color:var(--primary); font-weight:700;">Terms &amp; Conditions</a></label>
+                </div>
+
+                <button type="button" id="signupSubmitBtn" class="btn btn-primary" onclick="initiateSignup()">
+                    Create Account &amp; Proceed <i class="fa-solid fa-shield-halved"></i>
+                </button>
+            </div>
+
+            <div class="auth-support-card">
+                <div class="auth-support-head">
+                    <i class="fa-solid fa-headset"></i>
+                    <span>Need Help / Support?</span>
+                </div>
+                <div class="auth-support-actions">
+                    <button type="button" class="btn-auth-support call" onclick="directCallLatikesh(event)">
+                        <i class="fa-solid fa-phone"></i> Call
+                    </button>
+                    <button type="button" class="btn-auth-support wa" onclick="directWhatsappLatikesh(event)">
+                        <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP SCREEN -->
+    <div class="app-container" id="appWrapper" style="display: none; padding-bottom: 95px;">
+        
+        <header class="app-header-card">
+            <div class="brand-row" style="padding: 14px;">
+                <div class="brand-logo-img">
+                    <img src="https://i.postimg.cc/CL8jFGXK/IMG-20261012-WA0015-2.jpg" alt="DWITI LOGISTICS" class="app-header-logo">
+                </div>
+                <div class="brand-text">
+                    <span class="tagline orange-tagline">SAME DAY EXPRESS DELIVERY KALHER TO NAVI MUMBAI</span>
+                </div>
+            </div>
+
+            <!-- ENLARGED NOTIFICATION PANEL -->
+            <div class="header-notification-panel large-notif-panel">
+                <div class="notif-badge-icon">
+                    <i class="fa-solid fa-bell fa-bounce"></i>
+                    <span class="red-dot-count" id="notifCount">1</span>
+                </div>
+                <div class="notif-ticker-container">
+                    <div class="notif-ticker-text" id="notifTickerText">
+                        WELCOME TO DWITI LOGISTICS
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-subbar">
+                <div class="user-status-pill">
+                    <i class="fa-solid fa-building"></i>
+                    <span id="currentUserDisplay">Company</span>
+                </div>
+
+                <!-- NORMAL THEME SELECTOR DROPDOWN -->
+                <div class="theme-selector-wrap">
+                    <i class="fa-solid fa-palette"></i>
+                    <select id="appThemeSelector" onchange="changeAppTheme(this.value)">
+                        <option value="theme-navy">💼 Professional Navy</option>
+                        <option value="theme-sage">🌿 Soft Sage Green</option>
+                        <option value="theme-slate">🏙️ Slate Charcoal</option>
+                        <option value="theme-taupe">☕ Warm Taupe</option>
+                        <option value="theme-white">🪟 Clean Classic White</option>
+                        <option value="theme-teal">🌊 Ocean Teal</option>
+                    </select>
+                </div>
+
+                <button class="btn-logout" onclick="logout()" title="Logout">
+                    <span>Logout</span> <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- TAB CONTENT: HOME (BOOKING) -->
+        <div id="tabContentHome" class="tab-content-pane active">
+            
+            <div class="route-banner-grid">
+                <div class="hub-col">
+                    <div class="hub-header"><span class="hub-indicator pickup"></span><span class="hub-label">PICKUP HUB</span></div>
+                    <h4 class="hub-title">Kalher (Bhiwandi)</h4>
+                    <div class="hub-time"><i class="fa-regular fa-clock"></i> 09:00 AM - 10:00 AM</div>
+                </div>
+
+                <!-- BALANCED CUT-OFF BADGE -->
+                <div class="cutoff-badge-box">
+                    <div class="cutoff-badge-title"><i class="fa-solid fa-bolt"></i> Same Day Delivery</div>
+                    <div class="cutoff-badge-sub">Booking Cut-Off <span>8:00 AM</span></div>
+                </div>
+
+                <div class="hub-col text-right-hub">
+                    <div class="hub-header delivery-header-right"><span class="hub-label">DELIVERY ZONE</span><span class="hub-indicator delivery"></span></div>
+                    <h4 class="hub-title">Navi Mumbai Hubs</h4>
+                    <div class="hub-time delivery-time-right"><i class="fa-regular fa-clock"></i> 02:00 PM - 03:00 PM</div>
+                </div>
+            </div>
+
+            <div class="spec-callout">
+                <i class="fa-solid fa-circle-info"></i>
+                <div><strong>Permitted Dimensions:</strong> 10–50 kg: max 06 cu.ft | 51–100 kg: max 12 cu.ft. Booked at Owner's Risk.</div>
+            </div>
+
+            <!-- DARK GREY LR TOKEN BAR -->
+            <div class="tracking-pill darkgrey-lr-token" id="trackingId">
+                <i class="fa-solid fa-receipt"></i> Active LR Token: <span>DWITI-101</span>
+            </div>
+
+            <div id="successModal" class="card success-card" style="display: none;">
+                <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+                <h3>Booking Registered Successfully!</h3>
+                <p id="successText">Aapki booking database me save ho gayi hai.</p>
+                <div id="uploadStatus" class="upload-badge">✅ LR Document Ready!</div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-print-lr" onclick="printLRDoc()"><i class="fa-solid fa-print"></i> Print 3x LR copies (A4)</button>
+                    <button type="button" class="btn btn-whatsapp" onclick="sendWhatsApp()"><i class="fa-brands fa-whatsapp"></i> Send on WhatsApp</button>
+                    <button type="button" class="btn btn-primary" onclick="resetFormForNewBooking()" style="margin-top: 8px;"><i class="fa-solid fa-plus"></i> New Booking</button>
+                </div>
+            </div>
+
+            <form id="bookingForm" class="booking-grid">
+                
+                <!-- 1. CONSIGNOR DETAILS -->
+                <section class="form-card">
+                    <div class="card-header">
+                        <span class="step-num">1</span>
+                        <div>
+                            <h3>Consignor (Sender) Details</h3>
+                            <p>Default Consignor Details Loaded</p>
+                        </div>
+                    </div>
+
+                    <div class="party-action-bar">
+                        <button type="button" class="btn-party-act primary" onclick="openAddPartyModal('consignor')">
+                            <i class="fa-solid fa-user-plus"></i> Add Consignor
+                        </button>
+                        <button type="button" class="btn-party-act sky-blue-btn" onclick="openPartyModal('consignor')">
+                            <i class="fa-solid fa-address-book"></i> My Parties
+                        </b
