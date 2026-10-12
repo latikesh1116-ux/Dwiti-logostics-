@@ -502,22 +502,25 @@ input:focus, select:focus { border-color: var(--primary); }
 }
 
 /* =========================================================
-   A4 EXACT SINGLE-PAGE 3X LR ENGINE (ZERO MARGIN, BIG FONTS)
+   UNIVERSAL 1-PAGE 3X LR ENGINE (A4 + LETTER SAFE FIT)
    ========================================================= */
 @media print {
     @page { 
-        size: A4 portrait; 
-        margin: 0 !important; 
+        size: auto;
+        margin: 0 !important;
+    }
+    
+    *, *:before, *:after {
+        box-sizing: border-box !important;
     }
     
     html, body { 
-        width: 210mm !important;
-        height: 297mm !important;
-        max-height: 297mm !important;
+        width: 100% !important;
+        height: 100% !important;
         margin: 0 !important; 
         padding: 0 !important; 
         background: #ffffff !important; 
-        overflow: hidden !important; 
+        overflow: hidden !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
@@ -528,47 +531,50 @@ input:focus, select:focus { border-color: var(--primary); }
     
     .print-only { 
         display: block !important; 
-        width: 210mm !important;
-        height: 297mm !important;
-        padding: 6mm 8mm !important;
-        box-sizing: border-box !important;
+        width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        padding: 4mm 6mm !important;
+        margin: 0 auto !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
     }
     
     .a4-page-grid { 
         display: flex !important; 
         flex-direction: column !important; 
         justify-content: space-between !important; 
-        height: 285mm !important; 
-        max-height: 285mm !important; 
-        box-sizing: border-box !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        gap: 3mm !important;
         page-break-after: avoid !important;
         page-break-inside: avoid !important;
     }
     
     .lr-copy-card { 
-        height: 92mm !important; 
-        max-height: 92mm !important; 
+        flex: 1 1 0 !important;
+        height: 32% !important;
+        max-height: 32% !important;
         border: 1.5px solid #000 !important; 
-        padding: 5px 10px !important; 
-        box-sizing: border-box !important; 
+        padding: 4px 8px !important; 
         display: flex !important; 
         flex-direction: column !important; 
         justify-content: space-between !important; 
         font-family: Arial, Helvetica, sans-serif !important; 
         color: #000 !important; 
         background: #fff !important; 
+        overflow: hidden !important;
         page-break-inside: avoid !important;
     }
     
     .lr-header { 
-        position: relative; 
-        border-bottom: 1.5px solid #000; 
-        padding-bottom: 4px; 
-        margin-bottom: 3px; 
+        border-bottom: 1.2px solid #000; 
+        padding-bottom: 2px; 
+        margin-bottom: 2px; 
         display: flex; 
         align-items: center; 
         justify-content: space-between; 
-        min-height: 44px; 
+        min-height: 36px; 
     }
     
     .lr-title-center { 
@@ -581,22 +587,21 @@ input:focus, select:focus { border-color: var(--primary); }
     }
     
     .print-brand-logo { 
-        max-height: 25px; 
+        max-height: 22px; 
         width: auto; 
         object-fit: contain; 
-        margin-bottom: 2px; 
     }
     
     .lr-title-center p { 
-        font-size: 9.5px !important; 
+        font-size: 9px !important; 
         font-weight: 800; 
         margin: 0; 
         color: #000; 
-        letter-spacing: 0.4px; 
+        letter-spacing: 0.3px; 
     }
     
     .lr-title-center span { 
-        font-size: 8.5px !important; 
+        font-size: 8px !important; 
         color: #000; 
     }
     
@@ -606,52 +611,55 @@ input:focus, select:focus { border-color: var(--primary); }
         align-items: flex-end; 
         justify-content: center; 
         text-align: right; 
-        font-size: 9.5px !important; 
-        line-height: 1.3; 
+        font-size: 9px !important; 
+        line-height: 1.2; 
     }
     
     .lr-type-badge { 
         display: inline-block; 
-        border: 1.2px solid #000; 
-        padding: 2px 6px; 
-        font-size: 8.5px !important; 
+        border: 1px solid #000; 
+        padding: 1px 5px; 
+        font-size: 8px !important; 
         font-weight: 800; 
         text-transform: uppercase; 
-        margin-bottom: 2px; 
+        margin-bottom: 1px; 
         background: #f1f5f9; 
     }
     
     .lr-body-grid { 
         display: grid; 
         grid-template-columns: 1fr 1fr; 
-        gap: 10px; 
-        border-bottom: 1.2px solid #000; 
-        padding: 3px 0; 
-        margin: 2px 0; 
+        gap: 8px; 
+        border-bottom: 1px solid #000; 
+        padding: 2px 0; 
+        margin: 1px 0; 
     }
     
     .lr-box { 
-        font-size: 10px !important; 
-        line-height: 1.3; 
+        font-size: 9.5px !important; 
+        line-height: 1.25; 
     }
+    
     .lr-box h4 {
-        font-size: 10.5px !important;
-        margin-bottom: 2px;
+        font-size: 10px !important;
+        margin: 0 0 1px 0;
         text-decoration: underline;
     }
     
     .lr-table { 
         width: 100%; 
         border-collapse: collapse; 
-        margin: 2px 0; 
+        margin: 1px 0; 
     }
     
     .lr-table th, .lr-table td { 
-        border: 1.2px solid #000; 
-        padding: 3px 2px; 
+        border: 1px solid #000; 
+        padding: 2px 1px; 
         text-align: center; 
-        font-size: 9.5px !important; 
+        font-size: 9px !important; 
+        line-height: 1.2;
     }
+    
     .lr-table th {
         background: #f8fafc;
         font-weight: 700;
@@ -661,12 +669,13 @@ input:focus, select:focus { border-color: var(--primary); }
         display: flex; 
         justify-content: space-between; 
         align-items: flex-end; 
-        font-size: 8px !important; 
-        padding-top: 2px; 
+        font-size: 7.5px !important; 
+        padding-top: 1px; 
     }
+    
     .lr-sign-box {
         border-top: 1px dotted #000;
-        padding-top: 2px;
+        padding-top: 1px;
         font-weight: 700;
     }
 }
