@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DWITI Logistics Portal</title>
     
     <link rel="manifest" href="./manifest.json">
@@ -19,113 +19,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <link rel="stylesheet" href="./style.css">
-
-    <style>
-      /* TOUCH & OVERLAY FIXES */
-      .party-modal-overlay {
-        display: none !important;
-        pointer-events: none !important;
-      }
-      .party-modal-overlay.active-modal {
-        display: flex !important;
-        pointer-events: auto !important;
-      }
-      .auth-wrapper {
-        position: relative !important;
-        z-index: 1000 !important;
-        pointer-events: auto !important;
-      }
-      .auth-card input, .auth-card button, .auth-tabs button {
-        pointer-events: auto !important;
-        touch-action: manipulation !important;
-      }
-      .tab-content-pane {
-        display: none;
-      }
-      .tab-content-pane.active {
-        display: block;
-      }
-      .bottom-nav-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 64px;
-        background: #0a192f;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        z-index: 9999;
-      }
-      .nav-tab-item {
-        background: transparent;
-        border: none;
-        color: #94a3b8;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        font-size: 11px;
-        font-weight: 600;
-        cursor: pointer;
-        padding: 6px;
-      }
-      .nav-tab-item i {
-        font-size: 18px;
-        margin-bottom: 3px;
-      }
-      .nav-tab-item.active {
-        color: #ff6b00;
-      }
-      .party-action-bar {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 12px;
-      }
-      .btn-party-act {
-        flex: 1;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 700;
-        border: none;
-        cursor: pointer;
-      }
-      .btn-party-act.primary {
-        background: #0a192f;
-        color: #fff;
-      }
-      .btn-party-act.sky-blue-btn {
-        background: #0284c7;
-        color: #fff;
-      }
-      .summary-card {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 14px;
-        margin-top: 14px;
-      }
-      .summary-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 6px;
-        font-size: 13px;
-        color: #334155;
-      }
-      .summary-row.total {
-        font-weight: 800;
-        font-size: 16px;
-        color: #0a192f;
-        border-top: 1px dashed #cbd5e1;
-        padding-top: 8px;
-        margin-top: 8px;
-      }
-    </style>
 </head>
 <body>
 
@@ -135,33 +32,31 @@
     </div>
 
     <!-- MY PARTIES LIST MODAL -->
-    <div class="party-modal-overlay" id="partyModalOverlay" onclick="closePartyModal()">
+    <div class="party-modal-overlay" id="partyModalOverlay" onclick="closePartyModal(event)">
         <div class="party-modal-card" onclick="event.stopPropagation()">
             <div class="party-modal-header">
                 <div>
-                    <h3><i class="fa-solid fa-address-book"></i> <span id="partyModalTitleText">My Parties Directory</span></h3>
-                    <p id="partyModalSubtitle">Select a party to auto-fill</p>
+                    <h3><i class="fa-solid fa-address-book"></i> <span id="partyModalTitleText">My Parties List</span></h3>
+                    <p id="partyModalSubtitle">Select or Call a party</p>
                 </div>
                 <button type="button" class="btn-close-modal" onclick="closePartyModal()"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div id="partyModalContent" class="party-list-items" style="padding:15px; max-height:60vh; overflow-y:auto;">
-                <p style="font-size:13px; color:#64748b;">No saved parties found.</p>
-            </div>
+            <div id="partyModalContent" class="party-list-items"></div>
         </div>
     </div>
 
     <!-- ADD PARTY POPUP MODAL -->
-    <div class="party-modal-overlay" id="addPartyModalOverlay" onclick="closeAddPartyModal()">
+    <div class="party-modal-overlay" id="addPartyModalOverlay" onclick="closeAddPartyModal(event)">
         <div class="party-modal-card" onclick="event.stopPropagation()">
             <div class="party-modal-header">
                 <div>
                     <h3><i class="fa-solid fa-user-plus"></i> <span id="addPartyModalTitleText">Add New Party</span></h3>
-                    <p>Enter details to save to your directory</p>
+                    <p>Enter details to save to your party directory</p>
                 </div>
                 <button type="button" class="btn-close-modal" onclick="closeAddPartyModal()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form id="addPartyForm" style="padding: 16px;" onsubmit="handlePartySaveSubmit(event)">
-                <div class="field-grid" style="grid-template-columns: 1fr; gap:10px;">
+                <div class="field-grid" style="grid-template-columns: 1fr;">
                     <div class="input-group">
                         <label>Party / Company Name *</label>
                         <input type="text" id="popPartyName" placeholder="Enter business or person name" required>
@@ -171,15 +66,27 @@
                         <input type="tel" id="popPartyPhone" placeholder="10-digit mobile number" required>
                     </div>
                     <div class="input-group">
+                        <label>GST Number (Optional)</label>
+                        <input type="text" id="popPartyGst" placeholder="e.g. 27AAAAA0000A1Z5">
+                    </div>
+                    <div class="input-group">
                         <label>City / Area *</label>
-                        <input type="text" id="popPartyCity" placeholder="e.g. Kalher, Vashi, Mahape, Turbhe" required>
+                        <input type="text" id="popPartyCity" placeholder="e.g. Kalher, Vashi, Rabale" required>
+                    </div>
+                    <div class="input-group" id="popDistanceGroup" style="display:none;">
+                        <label>Distance from Kalher Hub (km) *</label>
+                        <input type="number" id="popPartyDistance" placeholder="e.g. 25" min="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Google Maps Location Link *</label>
+                        <input type="url" id="popPartyMap" placeholder="https://maps.google.com/..." required>
                     </div>
                     <div class="input-group">
                         <label>Complete Street Address *</label>
                         <input type="text" id="popPartyAddress" placeholder="Building, Gala, Road Details" required>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="margin-top: 16px; width:100%;">
+                <button type="submit" class="btn btn-primary" style="margin-top: 16px;">
                     <i class="fa-solid fa-floppy-disk"></i> Save Party Details
                 </button>
             </form>
@@ -200,9 +107,13 @@
                 <p><strong>1. Timings &amp; Operational Schedule:</strong> Booking Cut-off 08:00 AM | Pickup 09:00-10:00 AM | Delivery Same day 02:00-04:00 PM.</p>
                 <p><strong>2. Parcel Size &amp; Weight Slabs:</strong> Slab 1 (10-50 kg, max 6 cu.ft) | Slab 2 (51-100 kg, max 12 cu.ft). Extra charges apply if exceeded.</p>
                 <p><strong>3. Loading / Unloading &amp; Hamali Policy:</strong> Loading and unloading is customer's responsibility. No hamali services provided.</p>
-                <p><strong>4. Waiting Time &amp; Delay Charges:</strong> Total 15-20 minutes free time. Extra waiting charges apply post that.</p>
+                <p><strong>4. Waiting Time &amp; Delay Charges:</strong> Total 15-20 minutes free time. Extra 0-30 min waiting: Flat ₹100/- charge.</p>
                 <p><strong>5. Damage, Loss &amp; Accident Policy:</strong> Transit damage compensation: 5x of booking amount or max ₹2000/- (whichever is less).</p>
-                <p><strong>6. Prohibited Items:</strong> Drugs, weapons, chemicals, cash, jewelry strictly banned.</p>
+                <p><strong>6. Sender &amp; Receiver Responsibility:</strong> Proper safe packaging is sender's duty. Receiver must be present (02:00-04:00 PM).</p>
+                <p><strong>7. Payment Terms:</strong> Advance payment or agreed credit required. Delivery handed over only after payment clearance.</p>
+                <p><strong>8. Prohibited Items:</strong> Drugs, weapons, chemicals, cash, jewelry strictly banned.</p>
+                <p><strong>9. Force Majeure:</strong> No liability for delays due to floods, roadblocks, strikes, government restrictions.</p>
+                <p><strong>10. Jurisdiction:</strong> All disputes subject to local court jurisdiction only.</p>
             </div>
             <div style="padding:10px 15px; border-top:1px solid #38bdf8;">
                 <button type="button" class="btn btn-primary" onclick="agreeTcAndClose()">I Understand &amp; Agree / मला मान्य आहे</button>
@@ -247,7 +158,7 @@
                     <label for="loginAgreeTC" style="font-size:12px; cursor:pointer;">I agree to <a href="javascript:void(0)" onclick="openTcModal()" style="color:var(--primary); font-weight:700;">Terms &amp; Conditions</a></label>
                 </div>
 
-                <button type="button" id="loginSubmitBtn" class="btn btn-primary" onclick="initiateLogin(event)">
+                <button type="button" id="loginSubmitBtn" class="btn btn-primary" onclick="initiateLogin()">
                     Sign In to Portal <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
@@ -292,7 +203,7 @@
                     <label for="regAgreeTC" style="font-size:12px; cursor:pointer;">I agree to <a href="javascript:void(0)" onclick="openTcModal()" style="color:var(--primary); font-weight:700;">Terms &amp; Conditions</a></label>
                 </div>
 
-                <button type="button" id="signupSubmitBtn" class="btn btn-primary" onclick="initiateSignup(event)">
+                <button type="button" id="signupSubmitBtn" class="btn btn-primary" onclick="initiateSignup()">
                     Create Account &amp; Proceed <i class="fa-solid fa-shield-halved"></i>
                 </button>
             </div>
@@ -303,10 +214,10 @@
                     <span>Need Help / Support?</span>
                 </div>
                 <div class="auth-support-actions">
-                    <button type="button" class="btn-auth-support call" onclick="makeDirectPhoneCall(event, '8149448985')">
+                    <button type="button" class="btn-auth-support call" onclick="directCallLatikesh(event)">
                         <i class="fa-solid fa-phone"></i> Call
                     </button>
-                    <button type="button" class="btn-auth-support wa" onclick="window.open('https://wa.me/918149448985', '_blank')">
+                    <button type="button" class="btn-auth-support wa" onclick="directWhatsappLatikesh(event)">
                         <i class="fa-brands fa-whatsapp"></i> WhatsApp
                     </button>
                 </div>
@@ -327,7 +238,6 @@
                 </div>
             </div>
 
-            <!-- NOTIFICATION PANEL -->
             <div class="header-notification-panel large-notif-panel">
                 <div class="notif-badge-icon">
                     <i class="fa-solid fa-bell fa-bounce"></i>
@@ -391,14 +301,405 @@
                 <div><strong>Permitted Dimensions:</strong> 10–50 kg: max 06 cu.ft | 51–100 kg: max 12 cu.ft. Booked at Owner's Risk.</div>
             </div>
 
-            <!-- LR TOKEN BAR -->
             <div class="tracking-pill darkgrey-lr-token" id="trackingId">
                 <i class="fa-solid fa-receipt"></i> Active LR Token: <span>DWITI-101</span>
             </div>
 
-            <div id="successModal" class="card success-card" style="display: none; padding:20px; background:#f0fdf4; border:1px solid #86efac; border-radius:12px; margin-bottom:15px;">
-                <div class="success-icon" style="font-size:32px; color:#16a34a; text-align:center;"><i class="fa-solid fa-circle-check"></i></div>
-                <h3 style="text-align:center; color:#166534; margin:8px 0;">Booking Registered Successfully!</h3>
-                <p id="successText" style="text-align:center; font-size:13px; color:#15803d;">Aapki booking database me save ho gayi hai.</p>
-                <div class="modal-actions" style="display:flex; flex-direction:column; gap:8px; margin-top:14px;">
-                    <button type="button" class="btn btn-prima
+            <div id="successModal" class="card success-card" style="display: none;">
+                <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+                <h3>Booking Registered Successfully!</h3>
+                <p id="successText">Aapki booking database me save ho gayi hai.</p>
+                <div id="uploadStatus" class="upload-badge">✅ LR Document Ready!</div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-print-lr" onclick="printLRDoc()"><i class="fa-solid fa-print"></i> Print 3x LR copies (A4)</button>
+                    <button type="button" class="btn btn-whatsapp" onclick="sendWhatsApp()"><i class="fa-brands fa-whatsapp"></i> Send on WhatsApp</button>
+                    <button type="button" class="btn btn-primary" onclick="resetFormForNewBooking()" style="margin-top: 8px;"><i class="fa-solid fa-plus"></i> New Booking</button>
+                </div>
+            </div>
+
+            <form id="bookingForm" class="booking-grid">
+                
+                <section class="form-card">
+                    <div class="card-header">
+                        <span class="step-num">1</span>
+                        <div>
+                            <h3>Consignor (Sender) Details</h3>
+                            <p>Default Consignor Details Loaded</p>
+                        </div>
+                    </div>
+
+                    <div class="party-action-bar">
+                        <button type="button" class="btn-party-act primary" onclick="openAddPartyModal('consignor')">
+                            <i class="fa-solid fa-user-plus"></i> Add Consignor
+                        </button>
+                        <button type="button" class="btn-party-act sky-blue-btn" onclick="openPartyModal('consignor')">
+                            <i class="fa-solid fa-address-book"></i> My Parties
+                        </button>
+                    </div>
+
+                    <div id="consignorCardDisplay" class="selected-party-card" style="display: none;">
+                        <div class="party-card-top">
+                            <h4 id="dispSenderName">--</h4>
+                            <button type="button" class="btn-change-party" onclick="openPartyModal('consignor')"><i class="fa-solid fa-pen"></i> Change</button>
+                        </div>
+                        <p id="dispSenderDetails"><i class="fa-solid fa-phone"></i> -- | <i class="fa-solid fa-location-dot"></i> --</p>
+                        <div class="party-meta-row">
+                            <span id="dispSenderGst">GST: N/A</span>
+                            <a id="dispSenderMap" href="#" target="_blank" style="display:none;"><i class="fa-solid fa-map-pin"></i> View Map Location</a>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="senderName" required>
+                    <input type="hidden" id="senderPhone" required>
+                    <input type="hidden" id="senderCity" required>
+                    <input type="hidden" id="senderGst">
+                    <input type="hidden" id="senderMap" required>
+                    <input type="hidden" id="senderAddress" required>
+                </section>
+
+                <section class="form-card">
+                    <div class="card-header">
+                        <span class="step-num">2</span>
+                        <div>
+                            <h3>Consignee (Receiver) Details &amp; Distance</h3>
+                            <p>Select or Add Consignee Details</p>
+                        </div>
+                    </div>
+
+                    <div class="party-action-bar">
+                        <button type="button" class="btn-party-act primary" onclick="openAddPartyModal('consignee')">
+                            <i class="fa-solid fa-user-plus"></i> Add Consignee
+                        </button>
+                        <button type="button" class="btn-party-act sky-blue-btn" onclick="openPartyModal('consignee')">
+                            <i class="fa-solid fa-address-book"></i> My Parties
+                        </button>
+                    </div>
+
+                    <div id="consigneeCardDisplay" class="selected-party-card" style="display: none;">
+                        <div class="party-card-top">
+                            <h4 id="dispReceiverName">--</h4>
+                            <button type="button" class="btn-change-party" onclick="openPartyModal('consignee')"><i class="fa-solid fa-pen"></i> Change</button>
+                        </div>
+                        <p id="dispReceiverDetails"><i class="fa-solid fa-phone"></i> -- | <i class="fa-solid fa-location-dot"></i> --</p>
+                        <div class="party-meta-row">
+                            <span id="dispReceiverDist">Distance: 0 km</span>
+                            <span id="dispReceiverGst">GST: N/A</span>
+                            <a id="dispReceiverMap" href="#" target="_blank" style="display:none;"><i class="fa-solid fa-map-pin"></i> View Map Location</a>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="receiverNameOnly" required>
+                    <input type="hidden" id="receiverPhone" required>
+                    <input type="hidden" id="receiverCity" required>
+                    <input type="hidden" id="distance" oninput="calculateRate()" required>
+                    <input type="hidden" id="receiverGst">
+                    <input type="hidden" id="receiverMap" required>
+                    <input type="hidden" id="receiverAddressOnly" required>
+                </section>
+
+                <section class="form-card highlight-card">
+                    <div class="card-header"><span class="step-num">3</span><div><h3>Cargo Specs &amp; Tariff Calculation</h3><p>Standard express tariff &amp; E-Way Bill</p></div></div>
+                    <div class="field-grid">
+                        <div class="input-group"><label>Weight (kg)</label><input type="number" id="weight" placeholder="e.g. 30" min="10" max="100" oninput="calculateRate()" required></div>
+                        <div class="input-group"><label>Number of Articles</label><input type="number" id="numArticles" placeholder="e.g. 5" min="1" required></div>
+                        <div class="input-group">
+                            <label>Goods Packaging</label>
+                            <select id="packagingType" required>
+                                <option value="">-- Select Packaging --</option>
+                                <option value="Box / Carton">Box / Carton</option>
+                                <option value="Wooden Crate">Wooden Crate</option>
+                                <option value="Drum / Barrel">Drum / Barrel</option>
+                                <option value="Bag / Sack">Bag / Sack</option>
+                                <option value="Bundle / Bale">Bundle / Bale</option>
+                                <option value="Loose / Unpacked">Loose / Unpacked</option>
+                            </select>
+                        </div>
+                        <div class="input-group"><label>Invoice Number</label><input type="text" id="invoiceNo" placeholder="e.g. INV-2026-001"></div>
+                        <div class="input-group"><label>Invoice Value (₹)</label><input type="number" id="invoiceVal" placeholder="e.g. 15000" oninput="onInvoiceValChange(this.value)"></div>
+                        <div class="input-group full-width"><label>Goods Description / Type</label><input type="text" id="goodsType" placeholder="e.g. Medicines, Apparel, Hardware" required></div>
+
+                        <div class="input-group full-width" style="background:#f8fafc; padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+                            <label style="margin-bottom:6px; justify-content:space-between; width:100%;">
+                                <span><i class="fa-solid fa-file-invoice"></i> Is E-Way Bill Required?</span>
+                                <small id="ewayNotice" style="color:var(--orange-bright); font-size:10.5px; display:none; font-weight:700;">(Compulsory for &gt;₹49,999)</small>
+                            </label>
+                            <div class="eway-radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="ewayToggle" value="yes" onchange="toggleEwayField(true)">
+                                    <span>Yes</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="ewayToggle" value="no" checked onchange="toggleEwayField(false)">
+                                    <span>No</span>
+                                </label>
+                            </div>
+
+                            <div id="ewayNumberWrap" class="input-group" style="display:none; margin-top:10px;">
+                                <label>E-Way Bill Number *</label>
+                                <input type="text" id="ewayBillNo" placeholder="Enter 12-digit E-Way Bill Number">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="price-quote-card">
+                        <div class="quote-header"><span>Standard Freight Total</span><div class="final-amt" id="totalPrice">₹0</div></div>
+                        <p class="quote-breakdown" id="breakdownText">Select consignee distance & weight to display cost breakup</p>
+                    </div>
+                </section>
+
+                <section class="form-card">
+                    <div class="card-header"><span class="step-num">4</span><div><h3>Settlement &amp; Confirmation</h3><p>Select billing mode and dispatch</p></div></div>
+                    <div class="input-group">
+                        <label>Payment Method</label>
+                        <select id="paymentMethod" onchange="togglePaymentDetails()" required>
+                            <option value="">-- Choose Payment Mode --</option>
+                            <option value="Online Payment (DWITI Logistics)">Online UPI / Instant Transfer</option>
+                            <option value="Cash at Pickup">Cash at Pickup (Consignor)</option>
+                            <option value="Cash at Delivery">Cash on Delivery (Consignee)</option>
+                        </select>
+                    </div>
+                    <div id="onlineDetails" class="upi-box" style="display: none;">
+                        <div class="upi-info"><strong>DWITI LOGISTICS</strong> • Prop: Latikesh Nachankar<br><code>latikesh1116-2@okhdfcbank</code></div>
+                        <button type="button" id="payNowBtn" class="btn btn-upi" onclick="openPaymentGateway()"><i class="fa-solid fa-qrcode"></i> Initiate UPI Payment</button>
+                        <span id="payStatus" class="pay-badge pending">Payment Status: Pending Verification</span>
+                    </div>
+
+                    <div class="readiness-check-card">
+                        <input type="checkbox" id="chkConsignmentReady" onchange="toggleSubmitButtonReadiness()">
+                        <label for="chkConsignmentReady">
+                            <strong>Compulsory Declaration:</strong> We will keep the consignment, original Invoice, and 3x Print LR ready at the pickup location by <strong>09:00 AM</strong>.
+                        </label>
+                    </div>
+
+                    <button type="button" id="submitBtn" class="btn btn-submit disabled" onclick="bookAndSend()" disabled>
+                        Confirm Consignment <i class="fa-solid fa-check-circle"></i>
+                    </button>
+                </section>
+            </form>
+        </div>
+
+        <!-- TAB CONTENT: MY BOOKINGS -->
+        <div id="tabContentBookings" class="tab-content-pane" style="display: none;">
+            <section class="form-card">
+                <div class="card-header" style="border-bottom: 1px solid var(--border-color); margin-bottom: 12px; padding-bottom: 10px;">
+                    <span class="step-num"><i class="fa-solid fa-list-check" style="font-size:12px;"></i></span>
+                    <div>
+                        <h3 style="margin:0;">My Bookings &amp; Consignments</h3>
+                        <p style="margin:0;">Track and filter all your historical bookings</p>
+                    </div>
+                </div>
+
+                <div class="bookings-filter-bar">
+                    <div class="search-input-wrap">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="bookingSearchInput" placeholder="Search LR, Receiver, City..." oninput="filterBookingsList()">
+                    </div>
+                    <select id="bookingStatusFilter" onchange="filterBookingsList()">
+                        <option value="ALL" selected>All Status</option>
+                        <option value="Booking Confirmed">Booking Confirmed</option>
+                        <option value="Driver Assigned">Driver Assigned</option>
+                        <option value="Pickup Completed">Pickup Completed</option>
+                        <option value="Delivered">Delivered</option>
+                    </select>
+                </div>
+                
+                <div id="companyBookingsList" style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 15px;">Loading bookings...</div>
+                </div>
+            </section>
+        </div>
+
+        <!-- TAB CONTENT: TRACKER -->
+        <div id="tabContentTracker" class="tab-content-pane" style="display: none;">
+            <div class="tracking-bubble-card" id="trackingBubbleCard">
+                <div class="tracking-bubble-header">
+                    <div class="tracking-bubble-title">
+                        <i class="fa-solid fa-satellite-dish fa-beat"></i>
+                        <span>Live Consignment Tracker</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <select id="trackingLrSelector" onchange="onTrackingLrChange(this.value)" class="lr-dropdown-select">
+                            <option value="">Select LR Token</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="trackingSelectedInfo" class="tracking-sub-header">
+                    <span>To: <strong id="trkReceiverName">--</strong></span>
+                    <span id="trkStatusBadge" class="trk-status-badge">Booking Confirmed</span>
+                </div>
+
+                <div class="vertical-timeline-container">
+                    <div class="v-step active" id="vStep1">
+                        <div class="v-left">
+                            <div class="v-dot"><i class="fa-solid fa-file-circle-check"></i></div>
+                            <div class="v-line" id="vLine1"></div>
+                        </div>
+                        <div class="v-right">
+                            <div class="v-title">Booking Confirmed</div>
+                            <div class="v-time" id="vTime1">--</div>
+                        </div>
+                    </div>
+
+                    <div class="v-step" id="vStep2">
+                        <div class="v-left">
+                            <div class="v-dot"><i class="fa-solid fa-id-card-clip"></i></div>
+                            <div class="v-line" id="vLine2"></div>
+                        </div>
+                        <div class="v-right">
+                            <div class="v-title">Driver Assigned</div>
+                            <div class="v-time" id="vTime2">--</div>
+                        </div>
+                    </div>
+
+                    <div class="v-step" id="vStep3">
+                        <div class="v-left">
+                            <div class="v-dot"><i class="fa-solid fa-truck-ramp-box"></i></div>
+                            <div class="v-line" id="vLine3"></div>
+                        </div>
+                        <div class="v-right">
+                            <div class="v-title">Pickup Completed</div>
+                            <div class="v-time" id="vTime3">--</div>
+                        </div>
+                    </div>
+
+                    <div class="v-step" id="vStep4">
+                        <div class="v-left">
+                            <div class="v-dot"><i class="fa-solid fa-circle-check"></i></div>
+                        </div>
+                        <div class="v-right">
+                            <div class="v-title">Delivered</div>
+                            <div class="v-time" id="vTime4">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="trackingProofContainer" class="tracking-proof-box" style="display:none;"></div>
+            </div>
+
+            <div class="tracker-action-buttons">
+                <button type="button" id="btnCallDriver" class="btn-tracker-act call disabled" onclick="callAssignedDriver()" disabled>
+                    <i class="fa-solid fa-phone-volume"></i> <span id="callDriverText">Call Driver (Assign Pending)</span>
+                </button>
+                <button type="button" class="btn-tracker-act ticket" onclick="switchMainTab('support')">
+                    <i class="fa-solid fa-headset"></i> Raise Ticket / Issue
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: SUPPORT -->
+        <div id="tabContentSupport" class="tab-content-pane" style="display: none;">
+            <div class="support-card-new" style="margin-top: 0; flex-direction: column; align-items: stretch;">
+                <div class="support-info-wrap">
+                    <div class="support-icon"><i class="fa-solid fa-headset"></i></div>
+                    <div class="support-text-block">
+                        <h4 style="font-size:15px; color:var(--primary-dark);">LOGISTICS HELP DESK</h4>
+                        <p style="font-size:12px; font-weight:600; color:var(--primary);">24/7 Control Room for Vehicle Placement, Delivery Issues &amp; LR Queries</p>
+                    </div>
+                </div>
+                
+                <div class="support-actions-grid" style="margin-top: 10px;">
+                    <button type="button" class="btn-support call-btn" style="flex:1;" onclick="directCallLatikesh(event)">
+                        <i class="fa-solid fa-phone"></i> Call Dispatcher (+91 8149448985)
+                    </button>
+                    <button type="button" class="btn-support wa-btn green-wa" style="flex:1;" onclick="directWhatsappLatikesh(event)">
+                        <i class="fa-brands fa-whatsapp"></i> WhatsApp Dispatcher
+                    </button>
+                </div>
+            </div>
+
+            <section class="form-card" style="margin-top: 14px;">
+                <div class="card-header" style="border-bottom: 1px solid var(--border-color); margin-bottom: 12px; padding-bottom: 10px;">
+                    <span class="step-num"><i class="fa-solid fa-ticket" style="font-size:12px;"></i></span>
+                    <div>
+                        <h3 style="margin:0;">Create Support Ticket</h3>
+                        <p style="margin:0; color:var(--primary); font-weight:700;">⚡ We respond in 15 minutes</p>
+                    </div>
+                </div>
+
+                <form id="supportTicketForm" onsubmit="handleSupportTicketSubmit(event)">
+                    <div class="field-grid" style="grid-template-columns: 1fr;">
+                        <div class="input-group">
+                            <label>Full Name *</label>
+                            <input type="text" id="ticketFullName" placeholder="Enter your full name" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Select LR Detail *</label>
+                            <select id="ticketLrSelect" required>
+                                <option value="">-- Select Relevant LR Token --</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Issue Category *</label>
+                            <select id="ticketCategory" required>
+                                <option value="">-- Select Issue Type --</option>
+                                <option value="Vehicle Placement / Driver Delay">Vehicle Placement / Driver Delay</option>
+                                <option value="Delivery Delay Query">Delivery Delay Query</option>
+                                <option value="Parcel Damage / Shortage">Parcel Damage / Shortage</option>
+                                <option value="Address / Location Update">Address / Location Update</option>
+                                <option value="Other Query">Other Operational Issue</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Issue Description / Query Details *</label>
+                            <textarea id="ticketDescription" rows="3" placeholder="Describe your issue or request here..." style="padding:10px; border:1.5px solid var(--border-color); border-radius:var(--radius-sm); font-size:13px; outline:none; font-family:inherit;" required></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 14px; font-weight:700;">
+                        <i class="fa-solid fa-paper-plane"></i> Submit Ticket (Fast Response)
+                    </button>
+                </form>
+            </section>
+
+            <section class="form-card" style="margin-top: 14px;">
+                <div class="card-header" style="border-bottom: 1px solid var(--border-color); margin-bottom: 12px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="step-num"><i class="fa-solid fa-circle-question" style="font-size:12px;"></i></span>
+                        <div>
+                            <h3 style="margin:0;">Frequently Asked Questions (FAQ)</h3>
+                            <p style="margin:0; color:var(--text-muted); font-size:11px;">Find answers to operational queries</p>
+                        </div>
+                    </div>
+                    <div>
+                        <select id="faqLangSelector" onchange="switchFaqLanguage(this.value)" style="padding: 6px 10px; font-size: 11.5px; font-weight: 700; border-radius: var(--radius-sm); border: 1.5px solid var(--border-color); background: #ffffff; color: var(--primary-dark); cursor: pointer;">
+                            <option value="en">English</option>
+                            <option value="hi" selected>Hinglish</option>
+                            <option value="mr">मराठी</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="faqAccordionContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            </section>
+        </div>
+
+        <nav class="bottom-tab-bar">
+            <button type="button" class="nav-tab-item active" id="navTabHome" onclick="switchMainTab('home')">
+                <div class="nav-icon-wrap"><i class="fa-solid fa-house"></i></div>
+                <span>Home</span>
+            </button>
+            <button type="button" class="nav-tab-item" id="navTabBookings" onclick="switchMainTab('bookings')">
+                <div class="nav-icon-wrap"><i class="fa-solid fa-rectangle-list"></i></div>
+                <span>My Bookings</span>
+            </button>
+            <button type="button" class="nav-tab-item" id="navTabTracker" onclick="switchMainTab('tracker')">
+                <div class="nav-icon-wrap"><i class="fa-solid fa-satellite-dish"></i></div>
+                <span>Tracker</span>
+            </button>
+            <button type="button" class="nav-tab-item" id="navTabSupport" onclick="switchMainTab('support')">
+                <div class="nav-icon-wrap"><i class="fa-solid fa-headset"></i></div>
+                <span>Support</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <div id="printArea" class="print-only"></div>
+
+    <script src="./app.js"></script>
+</body>
+</html>
