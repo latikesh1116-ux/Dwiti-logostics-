@@ -20,8 +20,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <link rel="stylesheet" href="./style.css">
 </head>
@@ -33,7 +33,7 @@
     </div>
 
     <!-- MY PARTIES LIST MODAL -->
-    <div class="party-modal-overlay" id="partyModalOverlay" onclick="closePartyModal(event)">
+    <div class="party-modal-overlay" id="partyModalOverlay" style="display:none;" onclick="closePartyModal(event)">
         <div class="party-modal-card" onclick="event.stopPropagation()">
             <div class="party-modal-header">
                 <div>
@@ -47,7 +47,7 @@
     </div>
 
     <!-- ADD PARTY POPUP MODAL -->
-    <div class="party-modal-overlay" id="addPartyModalOverlay" onclick="closeAddPartyModal(event)">
+    <div class="party-modal-overlay" id="addPartyModalOverlay" style="display:none;" onclick="closeAddPartyModal(event)">
         <div class="party-modal-card" onclick="event.stopPropagation()">
             <div class="party-modal-header">
                 <div>
@@ -159,7 +159,7 @@
                     <label for="loginAgreeTC" style="font-size:12px; cursor:pointer;">I agree to <a href="javascript:void(0)" onclick="openTcModal()" style="color:var(--primary); font-weight:700;">Terms &amp; Conditions</a></label>
                 </div>
 
-                <button type="button" id="loginSubmitBtn" class="btn btn-primary" onclick="initiateLogin()">
+                <button type="button" id="loginSubmitBtn" class="btn btn-primary" onclick="initiateLogin(event)">
                     Sign In to Portal <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
@@ -204,7 +204,7 @@
                     <label for="regAgreeTC" style="font-size:12px; cursor:pointer;">I agree to <a href="javascript:void(0)" onclick="openTcModal()" style="color:var(--primary); font-weight:700;">Terms &amp; Conditions</a></label>
                 </div>
 
-                <button type="button" id="signupSubmitBtn" class="btn btn-primary" onclick="initiateSignup()">
+                <button type="button" id="signupSubmitBtn" class="btn btn-primary" onclick="initiateSignup(event)">
                     Create Account &amp; Proceed <i class="fa-solid fa-shield-halved"></i>
                 </button>
             </div>
@@ -215,10 +215,10 @@
                     <span>Need Help / Support?</span>
                 </div>
                 <div class="auth-support-actions">
-                    <button type="button" class="btn-auth-support call" onclick="directCallLatikesh(event)">
+                    <button type="button" class="btn-auth-support call" onclick="makeDirectPhoneCall(event, '8149448985')">
                         <i class="fa-solid fa-phone"></i> Call
                     </button>
-                    <button type="button" class="btn-auth-support wa" onclick="directWhatsappLatikesh(event)">
+                    <button type="button" class="btn-auth-support wa" onclick="window.open('https://wa.me/918149448985', '_blank')">
                         <i class="fa-brands fa-whatsapp"></i> WhatsApp
                     </button>
                 </div>
@@ -239,7 +239,7 @@
                 </div>
             </div>
 
-            <!-- ENLARGED NOTIFICATION PANEL -->
+            <!-- NOTIFICATION PANEL -->
             <div class="header-notification-panel large-notif-panel">
                 <div class="notif-badge-icon">
                     <i class="fa-solid fa-bell fa-bounce"></i>
@@ -258,7 +258,7 @@
                     <span id="currentUserDisplay">Company</span>
                 </div>
 
-                <!-- NORMAL THEME SELECTOR DROPDOWN -->
+                <!-- THEME SELECTOR -->
                 <div class="theme-selector-wrap">
                     <i class="fa-solid fa-palette"></i>
                     <select id="appThemeSelector" onchange="changeAppTheme(this.value)">
@@ -287,7 +287,6 @@
                     <div class="hub-time"><i class="fa-regular fa-clock"></i> 09:00 AM - 10:00 AM</div>
                 </div>
 
-                <!-- BALANCED CUT-OFF BADGE -->
                 <div class="cutoff-badge-box">
                     <div class="cutoff-badge-title"><i class="fa-solid fa-bolt"></i> Same Day Delivery</div>
                     <div class="cutoff-badge-sub">Booking Cut-Off <span>8:00 AM</span></div>
@@ -305,39 +304,46 @@
                 <div><strong>Permitted Dimensions:</strong> 10–50 kg: max 06 cu.ft | 51–100 kg: max 12 cu.ft. Booked at Owner's Risk.</div>
             </div>
 
-            <!-- DARK GREY LR TOKEN BAR -->
+            <!-- LR TOKEN BAR -->
             <div class="tracking-pill darkgrey-lr-token" id="trackingId">
                 <i class="fa-solid fa-receipt"></i> Active LR Token: <span>DWITI-101</span>
             </div>
 
-            <div id="successModal" class="card success-card" style="display: none;">
-                <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
-                <h3>Booking Registered Successfully!</h3>
-                <p id="successText">Aapki booking database me save ho gayi hai.</p>
-                <div id="uploadStatus" class="upload-badge">✅ LR Document Ready!</div>
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-print-lr" onclick="printLRDoc()"><i class="fa-solid fa-print"></i> Print 3x LR copies (A4)</button>
-                    <button type="button" class="btn btn-whatsapp" onclick="sendWhatsApp()"><i class="fa-brands fa-whatsapp"></i> Send on WhatsApp</button>
-                    <button type="button" class="btn btn-primary" onclick="resetFormForNewBooking()" style="margin-top: 8px;"><i class="fa-solid fa-plus"></i> New Booking</button>
-                </div>
-            </div>
-
             <form id="bookingForm" class="booking-grid">
-                
                 <!-- 1. CONSIGNOR DETAILS -->
                 <section class="form-card">
                     <div class="card-header">
                         <span class="step-num">1</span>
                         <div>
                             <h3>Consignor (Sender) Details</h3>
-                            <p>Default Consignor Details Loaded</p>
+                            <p>Pickup Location in Kalher Zone</p>
                         </div>
                     </div>
+                    <div class="field-grid" style="grid-template-columns: 1fr; margin-top:10px;">
+                        <div class="input-group">
+                            <label>Consignor Business Name *</label>
+                            <input type="text" id="consignorName" placeholder="e.g. Pallavi Enterprises" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Pickup Address *</label>
+                            <input type="text" id="consignorAddress" placeholder="Building, Gala, Compound, Kalher" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Phone Number *</label>
+                            <input type="tel" id="consignorPhone" placeholder="10-digit mobile" required>
+                        </div>
+                    </div>
+                </section>
 
-                    <div class="party-action-bar">
-                        <button type="button" class="btn-party-act primary" onclick="openAddPartyModal('consignor')">
-                            <i class="fa-solid fa-user-plus"></i> Add Consignor
-                        </button>
-                        <button type="button" class="btn-party-act sky-blue-btn" onclick="openPartyModal('consignor')">
-                            <i class="fa-solid fa-address-book"></i> My Parties
-                        </b
+                <!-- 2. CONSIGNEE DETAILS -->
+                <section class="form-card" style="margin-top:15px;">
+                    <div class="card-header">
+                        <span class="step-num">2</span>
+                        <div>
+                            <h3>Consignee (Receiver) Details</h3>
+                            <p>Destination in Navi Mumbai</p>
+                        </div>
+                    </div>
+                    <div class="field-grid" style="grid-template-columns: 1fr; margin-top:10px;">
+                        <div class="input-group">
+        
