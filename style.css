@@ -501,23 +501,154 @@ input:focus, select:focus { border-color: var(--primary); }
     .cutoff-badge-box { width: 100%; }
 }
 
+/* =========================================================
+   A4 SINGLE-PAGE 3X LR PRINT ENGINE (EXACT 1 PAGE FIT)
+   ========================================================= */
 @media print {
-    @page { size: A4 portrait; margin: 0; }
-    html, body { width: 210mm; height: 297mm; margin: 0 !important; padding: 0 !important; background: #fff !important; overflow: hidden; }
-    #toastNotification, .party-modal-overlay, #authWrapper, #appWrapper, .bottom-tab-bar { display: none !important; }
-    .print-only { display: block !important; width: 210mm; height: 297mm; padding: 4mm 5mm; box-sizing: border-box; }
-    .a4-page-grid { display: flex; flex-direction: column; justify-content: space-between; height: 289mm; gap: 0.5cm; }
-    .lr-copy-card { height: 93mm; border: 1.5px solid #000; padding: 4px 7px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; font-family: Arial, sans-serif; color: #000; background: #fff; }
-    .lr-header { position: relative; border-bottom: 1.5px solid #000; padding-bottom: 12px; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; min-height: 56px; }
-    .lr-title-center { text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .print-brand-logo { max-height: 26px; width: auto; object-fit: contain; margin-bottom: 1px; }
-    .lr-title-center p { font-size: 8.5px; font-weight: 800; margin: 1px 0; color: #000; letter-spacing: 0.4px; }
-    .lr-title-center span { font-size: 8px; color: #000; }
-    .lr-meta { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; text-align: right; font-size: 9px; line-height: 1.3; }
-    .lr-type-badge { display: inline-block; border: 1px solid #000; padding: 1px 5px; font-size: 8px; font-weight: 800; text-transform: uppercase; margin-bottom: 2px; background: #f1f5f9; }
-    .lr-body-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-bottom: 1.5px solid #000; padding: 0.1cm 0; margin: 0.1cm 0; }
-    .lr-box { font-size: 10.5px; line-height: 1.25; }
-    .lr-table { width: 100%; border-collapse: collapse; margin: 2px 0; }
-    .lr-table th, .lr-table td { border: 1.2px solid #000; padding: 4px 3px; text-align: center; width: 25%; }
-    .lr-footer { display: flex; justify-content: space-between; align-items: flex-end; font-size: 7.5px; padding-top: 2px; }
+    @page { 
+        size: A4 portrait; 
+        margin: 4mm 6mm !important; 
+    }
+    
+    html, body { 
+        width: 100% !important; 
+        height: auto !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+        background: #fff !important; 
+        overflow: visible !important; 
+    }
+    
+    #toastNotification, .party-modal-overlay, #authWrapper, #appWrapper, .bottom-tab-bar { 
+        display: none !important; 
+    }
+    
+    .print-only { 
+        display: block !important; 
+        width: 100% !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+    }
+    
+    .a4-page-grid { 
+        display: flex !important; 
+        flex-direction: column !important; 
+        justify-content: space-between !important; 
+        height: 284mm !important; 
+        max-height: 284mm !important; 
+        gap: 3mm !important; 
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .lr-copy-card { 
+        height: 91mm !important; 
+        max-height: 91mm !important; 
+        border: 1.2px solid #000 !important; 
+        padding: 3mm 5mm !important; 
+        box-sizing: border-box !important; 
+        display: flex !important; 
+        flex-direction: column !important; 
+        justify-content: space-between !important; 
+        font-family: Arial, sans-serif !important; 
+        color: #000 !important; 
+        background: #fff !important; 
+        page-break-inside: avoid !important;
+    }
+    
+    .lr-header { 
+        position: relative; 
+        border-bottom: 1px solid #000; 
+        padding-bottom: 3px; 
+        margin-bottom: 2px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between; 
+        min-height: 40px; 
+    }
+    
+    .lr-title-center { 
+        text-align: center; 
+        flex: 1; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; 
+    }
+    
+    .print-brand-logo { 
+        max-height: 22px; 
+        width: auto; 
+        object-fit: contain; 
+        margin-bottom: 1px; 
+    }
+    
+    .lr-title-center p { 
+        font-size: 8px; 
+        font-weight: 800; 
+        margin: 0; 
+        color: #000; 
+        letter-spacing: 0.3px; 
+    }
+    
+    .lr-title-center span { 
+        font-size: 7.5px; 
+        color: #000; 
+    }
+    
+    .lr-meta { 
+        display: flex; 
+        flex-direction: column; 
+        align-items: flex-end; 
+        justify-content: center; 
+        text-align: right; 
+        font-size: 8px; 
+        line-height: 1.2; 
+    }
+    
+    .lr-type-badge { 
+        display: inline-block; 
+        border: 1px solid #000; 
+        padding: 1px 4px; 
+        font-size: 7.5px; 
+        font-weight: 800; 
+        text-transform: uppercase; 
+        margin-bottom: 2px; 
+        background: #f1f5f9; 
+    }
+    
+    .lr-body-grid { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 6px; 
+        border-bottom: 1px solid #000; 
+        padding: 2px 0; 
+        margin: 2px 0; 
+    }
+    
+    .lr-box { 
+        font-size: 9px; 
+        line-height: 1.2; 
+    }
+    
+    .lr-table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin: 1px 0; 
+    }
+    
+    .lr-table th, .lr-table td { 
+        border: 1px solid #000; 
+        padding: 2px; 
+        text-align: center; 
+        font-size: 8px;
+    }
+    
+    .lr-footer { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: flex-end; 
+        font-size: 7px; 
+        padding-top: 1px; 
+    }
 }
