@@ -502,12 +502,13 @@ input:focus, select:focus { border-color: var(--primary); }
 }
 
 /* =====================================================================
-   EXACT LETTER PAPER 3X LR ENGINE (SINGLE PAGE GUARANTEED)
+   MATHEMATICAL 1-PAGE 3X LR ENGINE (EXACT 1CM GAPS ON ISO A4)
+   Formula: 1cm Top + 3x 85.6mm Copies + 2x 1cm Gaps + 1cm Bottom = 297mm
    ===================================================================== */
 @media print {
     @page { 
-        size: letter portrait !important; 
-        margin: 0 !important; 
+        size: A4 portrait !important; 
+        margin: 0mm !important; 
     }
     
     *, *:before, *:after {
@@ -515,8 +516,9 @@ input:focus, select:focus { border-color: var(--primary); }
     }
     
     html, body { 
-        width: 100% !important; 
-        height: 100% !important; 
+        width: 210mm !important; 
+        height: 297mm !important; 
+        max-height: 297mm !important;
         margin: 0 !important; 
         padding: 0 !important; 
         background: #fff !important; 
@@ -525,38 +527,47 @@ input:focus, select:focus { border-color: var(--primary); }
         print-color-adjust: exact !important;
     }
     
+    body > *:not(.print-only) {
+        display: none !important;
+    }
+
     #toastNotification, .party-modal-overlay, #authWrapper, #appWrapper, .bottom-tab-bar { 
         display: none !important; 
     }
     
     .print-only { 
         display: block !important; 
-        width: 100% !important; 
-        height: 279mm !important; 
-        max-height: 279mm !important;
-        padding: 3mm 6mm !important; 
+        width: 210mm !important; 
+        height: 297mm !important; 
+        max-height: 297mm !important;
+        padding: 10mm 8mm !important; /* Exact 1cm (10mm) Top and Bottom gap */
+        margin: 0 !important;
         box-sizing: border-box !important; 
         page-break-after: avoid !important;
-        page-break-inside: avoid !important;
+        page-break-before: avoid !important;
+        break-after: avoid !important;
+        break-before: avoid !important;
+        overflow: hidden !important;
     }
     
     .a4-page-grid { 
         display: flex !important; 
         flex-direction: column !important; 
         justify-content: space-between !important; 
-        height: 270mm !important; 
-        max-height: 270mm !important;
-        gap: 3.5mm !important; 
+        height: 277mm !important; /* 297mm - 20mm outer margins */
+        max-height: 277mm !important;
+        gap: 10mm !important; /* Exact 1cm (10mm) gap between copies */
         box-sizing: border-box !important;
         page-break-after: avoid !important;
-        page-break-inside: avoid !important;
+        break-after: avoid !important;
+        overflow: hidden !important;
     }
     
     .lr-copy-card { 
-        height: 84mm !important; 
-        max-height: 84mm !important; 
-        border: 1.5px solid #000 !important; 
-        padding: 3px 7px !important; 
+        height: 85.6mm !important; /* Exact (257mm / 3) for 100% equal size */
+        max-height: 85.6mm !important; 
+        border: 1.2px solid #000 !important; 
+        padding: 3px 6px !important; 
         box-sizing: border-box !important; 
         display: flex !important; 
         flex-direction: column !important; 
@@ -566,17 +577,18 @@ input:focus, select:focus { border-color: var(--primary); }
         background: #fff !important; 
         overflow: hidden !important;
         page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
     
     .lr-header { 
         position: relative; 
-        border-bottom: 1.5px solid #000; 
+        border-bottom: 1.2px solid #000; 
         padding-bottom: 2px; 
         margin-bottom: 2px; 
         display: flex; 
         align-items: center; 
         justify-content: space-between; 
-        min-height: 38px; 
+        min-height: 34px; 
     }
     
     .lr-title-center { 
@@ -589,7 +601,7 @@ input:focus, select:focus { border-color: var(--primary); }
     }
     
     .print-brand-logo { 
-        max-height: 22px; 
+        max-height: 20px; 
         width: auto; 
         object-fit: contain; 
         margin-bottom: 1px; 
@@ -598,13 +610,13 @@ input:focus, select:focus { border-color: var(--primary); }
     .lr-title-center p { 
         font-size: 8.5px !important; 
         font-weight: 800; 
-        margin: 1px 0; 
+        margin: 0; 
         color: #000; 
-        letter-spacing: 0.4px; 
+        letter-spacing: 0.3px; 
     }
     
     .lr-title-center span { 
-        font-size: 8px !important; 
+        font-size: 7.5px !important; 
         color: #000; 
     }
     
@@ -614,54 +626,71 @@ input:focus, select:focus { border-color: var(--primary); }
         align-items: flex-end; 
         justify-content: center; 
         text-align: right; 
-        font-size: 9px !important; 
-        line-height: 1.2; 
+        font-size: 8.5px !important; 
+        line-height: 1.15; 
     }
     
     .lr-type-badge { 
         display: inline-block; 
         border: 1px solid #000; 
-        padding: 1px 5px; 
-        font-size: 8px !important; 
+        padding: 1px 4px; 
+        font-size: 7.5px !important; 
         font-weight: 800; 
         text-transform: uppercase; 
-        margin-bottom: 2px; 
+        margin-bottom: 1px; 
         background: #f1f5f9; 
     }
     
     .lr-body-grid { 
         display: grid; 
         grid-template-columns: 1fr 1fr; 
-        gap: 8px; 
-        border-bottom: 1.5px solid #000; 
+        gap: 6px; 
+        border-bottom: 1px solid #000; 
         padding: 2px 0; 
         margin: 1px 0; 
     }
     
     .lr-box { 
-        font-size: 9.5px !important; 
-        line-height: 1.25; 
+        font-size: 8.5px !important; 
+        line-height: 1.2; 
+    }
+    
+    .lr-box h4 {
+        font-size: 9px !important;
+        margin: 0 0 1px 0;
+        text-decoration: underline;
     }
     
     .lr-table { 
         width: 100%; 
         border-collapse: collapse; 
-        margin: 2px 0; 
+        margin: 1px 0; 
     }
     
     .lr-table th, .lr-table td { 
-        border: 1.2px solid #000; 
-        padding: 3px 2px; 
+        border: 1px solid #000; 
+        padding: 2px 1px; 
         text-align: center; 
         width: 25%; 
-        font-size: 9px !important;
+        font-size: 8px !important; 
+    }
+    
+    .lr-table th {
+        background: #f8fafc;
+        font-weight: 700;
     }
     
     .lr-footer { 
         display: flex; 
         justify-content: space-between; 
         align-items: flex-end; 
-        font-size: 7.5px !important; 
+        font-size: 7px !important; 
         padding-top: 1px; 
+    }
+    
+    .lr-sign-box {
+        border-top: 1px dotted #000;
+        padding-top: 1px;
+        font-weight: 700;
     }
 }
