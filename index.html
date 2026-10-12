@@ -7,6 +7,10 @@
     
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#0a192f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dwiti Logistics">
+    <link rel="apple-touch-icon" href="./icon-192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,8 +24,8 @@
 
     <link rel="stylesheet" href="./style.css">
 
-    <!-- OVERLAY TOUCH BLOCKER FIX -->
     <style>
+      /* TOUCH & OVERLAY FIXES */
       .party-modal-overlay {
         display: none !important;
         pointer-events: none !important;
@@ -32,12 +36,94 @@
       }
       .auth-wrapper {
         position: relative !important;
-        z-index: 99999 !important;
+        z-index: 1000 !important;
         pointer-events: auto !important;
       }
       .auth-card input, .auth-card button, .auth-tabs button {
         pointer-events: auto !important;
-        cursor: pointer !important;
+        touch-action: manipulation !important;
+      }
+      .tab-content-pane {
+        display: none;
+      }
+      .tab-content-pane.active {
+        display: block;
+      }
+      .bottom-nav-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: #0a192f;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 9999;
+      }
+      .nav-tab-item {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 6px;
+      }
+      .nav-tab-item i {
+        font-size: 18px;
+        margin-bottom: 3px;
+      }
+      .nav-tab-item.active {
+        color: #ff6b00;
+      }
+      .party-action-bar {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .btn-party-act {
+        flex: 1;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+      }
+      .btn-party-act.primary {
+        background: #0a192f;
+        color: #fff;
+      }
+      .btn-party-act.sky-blue-btn {
+        background: #0284c7;
+        color: #fff;
+      }
+      .summary-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 14px;
+        margin-top: 14px;
+      }
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-size: 13px;
+        color: #334155;
+      }
+      .summary-row.total {
+        font-weight: 800;
+        font-size: 16px;
+        color: #0a192f;
+        border-top: 1px dashed #cbd5e1;
+        padding-top: 8px;
+        margin-top: 8px;
       }
     </style>
 </head>
@@ -46,6 +132,82 @@
     <div id="toastNotification" class="toast-card">
         <i id="toastIcon" class="fa-solid fa-circle-check"></i>
         <span id="toastMsg">Notification</span>
+    </div>
+
+    <!-- MY PARTIES LIST MODAL -->
+    <div class="party-modal-overlay" id="partyModalOverlay" onclick="closePartyModal()">
+        <div class="party-modal-card" onclick="event.stopPropagation()">
+            <div class="party-modal-header">
+                <div>
+                    <h3><i class="fa-solid fa-address-book"></i> <span id="partyModalTitleText">My Parties Directory</span></h3>
+                    <p id="partyModalSubtitle">Select a party to auto-fill</p>
+                </div>
+                <button type="button" class="btn-close-modal" onclick="closePartyModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="partyModalContent" class="party-list-items" style="padding:15px; max-height:60vh; overflow-y:auto;">
+                <p style="font-size:13px; color:#64748b;">No saved parties found.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD PARTY POPUP MODAL -->
+    <div class="party-modal-overlay" id="addPartyModalOverlay" onclick="closeAddPartyModal()">
+        <div class="party-modal-card" onclick="event.stopPropagation()">
+            <div class="party-modal-header">
+                <div>
+                    <h3><i class="fa-solid fa-user-plus"></i> <span id="addPartyModalTitleText">Add New Party</span></h3>
+                    <p>Enter details to save to your directory</p>
+                </div>
+                <button type="button" class="btn-close-modal" onclick="closeAddPartyModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="addPartyForm" style="padding: 16px;" onsubmit="handlePartySaveSubmit(event)">
+                <div class="field-grid" style="grid-template-columns: 1fr; gap:10px;">
+                    <div class="input-group">
+                        <label>Party / Company Name *</label>
+                        <input type="text" id="popPartyName" placeholder="Enter business or person name" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Contact Phone Number *</label>
+                        <input type="tel" id="popPartyPhone" placeholder="10-digit mobile number" required>
+                    </div>
+                    <div class="input-group">
+                        <label>City / Area *</label>
+                        <input type="text" id="popPartyCity" placeholder="e.g. Kalher, Vashi, Mahape, Turbhe" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Complete Street Address *</label>
+                        <input type="text" id="popPartyAddress" placeholder="Building, Gala, Road Details" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 16px; width:100%;">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Party Details
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TERMS & CONDITIONS MODAL -->
+    <div class="party-modal-overlay" id="tcModalOverlay" onclick="closeTcModal()">
+        <div class="party-modal-card" style="max-height:85vh; display:flex; flex-direction:column;" onclick="event.stopPropagation()">
+            <div class="party-modal-header">
+                <div>
+                    <h3><i class="fa-solid fa-file-contract"></i> Terms &amp; Conditions / नियम और अटी</h3>
+                    <p>Dwiti Logistics Policy</p>
+                </div>
+                <button type="button" class="btn-close-modal" onclick="closeTcModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div style="padding:15px; overflow-y:auto; font-size:12px; line-height:1.6; color:#0f4c81; display:flex; flex-direction:column; gap:8px;">
+                <p><strong>1. Timings &amp; Operational Schedule:</strong> Booking Cut-off 08:00 AM | Pickup 09:00-10:00 AM | Delivery Same day 02:00-04:00 PM.</p>
+                <p><strong>2. Parcel Size &amp; Weight Slabs:</strong> Slab 1 (10-50 kg, max 6 cu.ft) | Slab 2 (51-100 kg, max 12 cu.ft). Extra charges apply if exceeded.</p>
+                <p><strong>3. Loading / Unloading &amp; Hamali Policy:</strong> Loading and unloading is customer's responsibility. No hamali services provided.</p>
+                <p><strong>4. Waiting Time &amp; Delay Charges:</strong> Total 15-20 minutes free time. Extra waiting charges apply post that.</p>
+                <p><strong>5. Damage, Loss &amp; Accident Policy:</strong> Transit damage compensation: 5x of booking amount or max ₹2000/- (whichever is less).</p>
+                <p><strong>6. Prohibited Items:</strong> Drugs, weapons, chemicals, cash, jewelry strictly banned.</p>
+            </div>
+            <div style="padding:10px 15px; border-top:1px solid #38bdf8;">
+                <button type="button" class="btn btn-primary" onclick="agreeTcAndClose()">I Understand &amp; Agree / मला मान्य आहे</button>
+            </div>
+        </div>
     </div>
 
     <!-- AUTH CARD -->
@@ -58,34 +220,34 @@
             <p class="subtitle">Kalher to Navi Mumbai Express B2B &amp; B2C Freight</p>
 
             <div class="auth-tabs">
-                <button type="button" class="tab-btn active" id="loginTabBtn" onclick="toggleAuth('login')">Sign In</button>
-                <button type="button" class="tab-btn" id="signupTabBtn" onclick="toggleAuth('signup')">Sign Up</button>
+                <button type="button" class="tab-btn active" id="loginTabBtn" onclick="switchAuthTab('login')">Sign In</button>
+                <button type="button" class="tab-btn" id="signupTabBtn" onclick="switchAuthTab('signup')">Sign Up</button>
             </div>
 
             <!-- LOGIN -->
             <div id="loginSection" class="auth-form-container">
                 <div class="input-group">
                     <label><i class="fa-regular fa-building"></i> Company Name</label>
-                    <input type="text" id="loginCompanyName" placeholder="e.g. Acme Pharma">
+                    <input type="text" id="loginCompanyName" placeholder="e.g. Acme Pharma" required>
                 </div>
                 <div class="input-group">
                     <label><i class="fa-solid fa-phone"></i> Registered Mobile Number</label>
                     <div class="phone-input-wrap">
                         <span class="prefix">+91</span>
-                        <input type="tel" id="loginPhone" maxlength="10" placeholder="9876543210">
+                        <input type="tel" id="loginPhone" maxlength="10" placeholder="9876543210" required>
                     </div>
                 </div>
                 <div class="input-group">
                     <label><i class="fa-solid fa-shield-halved"></i> Company Security Code / PIN (4 Digits)</label>
-                    <input type="password" id="loginCompanyCode" maxlength="4" placeholder="e.g. 1234">
+                    <input type="password" id="loginCompanyCode" maxlength="4" placeholder="e.g. 1234" required>
                 </div>
 
-                <div style="display:flex; align-items:center; gap:8px; margin: 8px 0;">
-                    <input type="checkbox" id="loginAgreeTC" checked style="width:18px; height:18px; cursor:pointer;">
-                    <label for="loginAgreeTC" style="font-size:12px; cursor:pointer;">I agree to Terms &amp; Conditions</label>
+                <div style="display:flex; align-items:center; gap:8px; margin: 4px 0;">
+                    <input type="checkbox" id="loginAgreeTC" checked style="width:16px; height:16px; cursor:pointer;">
+                    <label for="loginAgreeTC" style="font-size:12px; cursor:pointer;">I agree to <a href="javascript:void(0)" onclick="openTcModal()" style="color:var(--primary); font-weight:700;">Terms &amp; Conditions</a></label>
                 </div>
 
-                <button type="button" id="loginSubmitBtn" class="btn btn-primary" onclick="doDirectLogin()">
+                <button type="button" id="loginSubmitBtn" class="btn btn-primary" onclick="initiateLogin(event)">
                     Sign In to Portal <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
@@ -94,21 +256,43 @@
             <div id="signupSection" class="auth-form-container" style="display: none;">
                 <div class="input-group">
                     <label><i class="fa-regular fa-building"></i> Company Name</label>
-                    <input type="text" id="regCompanyName" placeholder="Business Name">
+                    <input type="text" id="regCompanyName" placeholder="Business Name" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fa-solid fa-tags"></i> Company / Industry Type</label>
+                    <select id="regCompanyType" required>
+                        <option value="">-- Select Industry --</option>
+                        <option value="Medicines & Pharma">Medicines & Pharma</option>
+                        <option value="Textiles & Apparel">Textiles & Apparel</option>
+                        <option value="Electronics & IT">Electronics & IT</option>
+                        <option value="FMCG & Groceries">FMCG & Groceries</option>
+                        <option value="Industrial & Hardware">Industrial & Hardware</option>
+                        <option value="Other">Other Category</option>
+                    </select>
                 </div>
                 <div class="input-group">
                     <label><i class="fa-solid fa-phone"></i> Mobile Number</label>
                     <div class="phone-input-wrap">
                         <span class="prefix">+91</span>
-                        <input type="tel" id="regPhone" maxlength="10" placeholder="9876543210">
+                        <input type="tel" id="regPhone" maxlength="10" placeholder="9876543210" required>
                     </div>
                 </div>
                 <div class="input-group">
-                    <label><i class="fa-solid fa-key"></i> Company Code / PIN (4 Digits)</label>
-                    <input type="text" id="regCompanyCode" maxlength="4" placeholder="1234">
+                    <div class="label-with-action">
+                        <label><i class="fa-solid fa-key"></i> Company Code / PIN (4 Digits)</label>
+                        <button type="button" class="btn-gen-code" onclick="autoGenerateCompanyCode()">
+                            <i class="fa-solid fa-arrows-rotate"></i> Auto Generate
+                        </button>
+                    </div>
+                    <input type="text" id="regCompanyCode" maxlength="4" placeholder="4-digit PIN" required>
                 </div>
 
-                <button type="button" class="btn btn-primary" onclick="doDirectLogin()" style="margin-top:10px;">
+                <div style="display:flex; align-items:center; gap:8px; margin: 4px 0;">
+                    <input type="checkbox" id="regAgreeTC" checked style="width:16px; height:16px; cursor:pointer;">
+                    <label for="regAgreeTC" style="font-size:12px; cursor:pointer;">I agree to <a href="javascript:void(0)" onclick="openTcModal()" style="color:var(--primary); font-weight:700;">Terms &amp; Conditions</a></label>
+                </div>
+
+                <button type="button" id="signupSubmitBtn" class="btn btn-primary" onclick="initiateSignup(event)">
                     Create Account &amp; Proceed <i class="fa-solid fa-shield-halved"></i>
                 </button>
             </div>
@@ -119,7 +303,7 @@
                     <span>Need Help / Support?</span>
                 </div>
                 <div class="auth-support-actions">
-                    <button type="button" class="btn-auth-support call" onclick="window.location.href='tel:8149448985'">
+                    <button type="button" class="btn-auth-support call" onclick="makeDirectPhoneCall(event, '8149448985')">
                         <i class="fa-solid fa-phone"></i> Call
                     </button>
                     <button type="button" class="btn-auth-support wa" onclick="window.open('https://wa.me/918149448985', '_blank')">
@@ -132,6 +316,7 @@
 
     <!-- MAIN APP SCREEN -->
     <div class="app-container" id="appWrapper" style="display: none; padding-bottom: 95px;">
+        
         <header class="app-header-card">
             <div class="brand-row" style="padding: 14px;">
                 <div class="brand-logo-img">
@@ -142,54 +327,78 @@
                 </div>
             </div>
 
+            <!-- NOTIFICATION PANEL -->
+            <div class="header-notification-panel large-notif-panel">
+                <div class="notif-badge-icon">
+                    <i class="fa-solid fa-bell fa-bounce"></i>
+                    <span class="red-dot-count" id="notifCount">1</span>
+                </div>
+                <div class="notif-ticker-container">
+                    <div class="notif-ticker-text" id="notifTickerText">
+                        WELCOME TO DWITI LOGISTICS
+                    </div>
+                </div>
+            </div>
+
             <div class="user-subbar">
                 <div class="user-status-pill">
                     <i class="fa-solid fa-building"></i>
                     <span id="currentUserDisplay">Company</span>
                 </div>
-                <button class="btn-logout" onclick="window.location.reload()" title="Logout">
+
+                <div class="theme-selector-wrap">
+                    <i class="fa-solid fa-palette"></i>
+                    <select id="appThemeSelector" onchange="changeAppTheme(this.value)">
+                        <option value="theme-navy">💼 Professional Navy</option>
+                        <option value="theme-sage">🌿 Soft Sage Green</option>
+                        <option value="theme-slate">🏙️ Slate Charcoal</option>
+                        <option value="theme-taupe">☕ Warm Taupe</option>
+                        <option value="theme-white">🪟 Clean Classic White</option>
+                        <option value="theme-teal">🌊 Ocean Teal</option>
+                    </select>
+                </div>
+
+                <button class="btn-logout" onclick="logout()" title="Logout">
                     <span>Logout</span> <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </button>
             </div>
         </header>
 
-        <div style="padding: 16px;">
-            <div class="tracking-pill darkgrey-lr-token">
+        <!-- TAB CONTENT: HOME (BOOKING) -->
+        <div id="tabContentHome" class="tab-content-pane active">
+            
+            <div class="route-banner-grid">
+                <div class="hub-col">
+                    <div class="hub-header"><span class="hub-indicator pickup"></span><span class="hub-label">PICKUP HUB</span></div>
+                    <h4 class="hub-title">Kalher (Bhiwandi)</h4>
+                    <div class="hub-time"><i class="fa-regular fa-clock"></i> 09:00 AM - 10:00 AM</div>
+                </div>
+
+                <div class="cutoff-badge-box">
+                    <div class="cutoff-badge-title"><i class="fa-solid fa-bolt"></i> Same Day Delivery</div>
+                    <div class="cutoff-badge-sub">Booking Cut-Off <span>8:00 AM</span></div>
+                </div>
+
+                <div class="hub-col text-right-hub">
+                    <div class="hub-header delivery-header-right"><span class="hub-label">DELIVERY ZONE</span><span class="hub-indicator delivery"></span></div>
+                    <h4 class="hub-title">Navi Mumbai Hubs</h4>
+                    <div class="hub-time delivery-time-right"><i class="fa-regular fa-clock"></i> 02:00 PM - 03:00 PM</div>
+                </div>
+            </div>
+
+            <div class="spec-callout">
+                <i class="fa-solid fa-circle-info"></i>
+                <div><strong>Permitted Dimensions:</strong> 10–50 kg: max 06 cu.ft | 51–100 kg: max 12 cu.ft. Booked at Owner's Risk.</div>
+            </div>
+
+            <!-- LR TOKEN BAR -->
+            <div class="tracking-pill darkgrey-lr-token" id="trackingId">
                 <i class="fa-solid fa-receipt"></i> Active LR Token: <span>DWITI-101</span>
             </div>
-            <div class="form-card" style="margin-top: 15px; padding: 15px; background: #fff; border-radius: 8px;">
-                <h3 style="color:#0a192f;">🎉 Welcome to DWITI Logistics Portal</h3>
-                <p style="font-size: 13px; color: #555; margin-top: 8px;">Aapka account login ho chuka hai. Booking engine aur consignment dispatch active hai.</p>
-            </div>
-        </div>
-    </div>
 
-    <script>
-      function toggleAuth(type) {
-        var lSec = document.getElementById("loginSection");
-        var sSec = document.getElementById("signupSection");
-        var lBtn = document.getElementById("loginTabBtn");
-        var sBtn = document.getElementById("signupTabBtn");
-
-        if (type === 'login') {
-          lSec.style.display = "block";
-          sSec.style.display = "none";
-          lBtn.classList.add("active");
-          sBtn.classList.remove("active");
-        } else {
-          lSec.style.display = "none";
-          sSec.style.display = "block";
-          sBtn.classList.add("active");
-          lBtn.classList.remove("active");
-        }
-      }
-
-      function doDirectLogin() {
-        var cName = document.getElementById("loginCompanyName").value || document.getElementById("regCompanyName").value || "DWITI Client";
-        document.getElementById("authWrapper").style.display = "none";
-        document.getElementById("appWrapper").style.display = "block";
-        document.getElementById("currentUserDisplay").innerText = cName;
-      }
-    </script>
-</body>
-</html>
+            <div id="successModal" class="card success-card" style="display: none; padding:20px; background:#f0fdf4; border:1px solid #86efac; border-radius:12px; margin-bottom:15px;">
+                <div class="success-icon" style="font-size:32px; color:#16a34a; text-align:center;"><i class="fa-solid fa-circle-check"></i></div>
+                <h3 style="text-align:center; color:#166534; margin:8px 0;">Booking Registered Successfully!</h3>
+                <p id="successText" style="text-align:center; font-size:13px; color:#15803d;">Aapki booking database me save ho gayi hai.</p>
+                <div class="modal-actions" style="display:flex; flex-direction:column; gap:8px; margin-top:14px;">
+                    <button type="button" class="btn btn-prima
