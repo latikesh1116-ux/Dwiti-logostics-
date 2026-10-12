@@ -531,30 +531,30 @@ input:focus, select:focus { border-color: var(--primary); }
     
     .print-only { 
         display: block !important; 
-        width: 210mm !important; 
+        width: 100% !important; 
         max-width: 100% !important;
+        height: 100vh !important;
         margin: 0 auto !important; 
-        padding: 2mm 5mm !important; 
+        padding: 3mm 5mm !important; 
         box-sizing: border-box !important; 
         page-break-after: avoid !important;
         page-break-inside: avoid !important;
-        transform: scale(0.92) !important;
-        transform-origin: top center !important;
+        zoom: 82% !important;
     }
     
     .a4-page-grid { 
         display: flex !important; 
         flex-direction: column !important; 
-        justify-content: flex-start !important; 
-        height: auto !important; 
-        gap: 0.4cm !important; 
+        justify-content: space-between !important; 
+        height: 100% !important; 
+        gap: 0.35cm !important; 
         page-break-after: avoid !important;
         page-break-inside: avoid !important;
     }
     
     .lr-copy-card { 
-        height: 84mm !important; 
-        max-height: 84mm !important; 
+        flex: 1 1 0 !important;
+        max-height: 32% !important;
         border: 1.5px solid #000 !important; 
         padding: 3px 7px !important; 
         box-sizing: border-box !important; 
@@ -564,19 +564,19 @@ input:focus, select:focus { border-color: var(--primary); }
         font-family: Arial, sans-serif !important; 
         color: #000 !important; 
         background: #fff !important; 
-        overflow: hidden !important;
+        overflow: hidden !important; 
         page-break-inside: avoid !important;
     }
     
     .lr-header { 
         position: relative; 
         border-bottom: 1.5px solid #000; 
-        padding-bottom: 3px; 
+        padding-bottom: 2px; 
         margin-bottom: 2px; 
         display: flex; 
         align-items: center; 
         justify-content: space-between; 
-        min-height: 38px; 
+        min-height: 36px; 
     }
     
     .lr-title-center { 
