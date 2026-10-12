@@ -210,9 +210,7 @@ function loadDefaultConsignorMemory() {
   if (savedConsignor) {
     try {
       var p = JSON.parse(savedConsignor);
-      if (typeof applyPartyToForm === "function") {
-        applyPartyToForm("consignor", p);
-      }
+      applyPartyToForm("consignor", p);
     } catch (e) {}
   }
 }
@@ -348,10 +346,8 @@ window.onInvoiceValChange = function(val) {
 window.openTcModal = function() { var o = document.getElementById("tcModalOverlay"); if (o) o.style.display = "flex"; };
 window.closeTcModal = function() { var o = document.getElementById("tcModalOverlay"); if (o) o.style.display = "none"; };
 window.agreeTcAndClose = function() {
-  var lTc = document.getElementById("loginAgreeTC");
-  var rTc = document.getElementById("regAgreeTC");
-  if (lTc) lTc.checked = true;
-  if (rTc) rTc.checked = true;
+  document.getElementById("loginAgreeTC").checked = true;
+  document.getElementById("regAgreeTC").checked = true;
   window.closeTcModal();
   window.showToast("Terms Accepted!", false);
 };
@@ -361,23 +357,19 @@ window.showToast = function(m, err) {
   var msg = document.getElementById("toastMsg");
   var ic = document.getElementById("toastIcon");
   if (!t) return;
-  if (msg) msg.innerText = m;
+  msg.innerText = m;
   t.className = "toast-card" + (err ? " toast-error" : "");
-  if (ic) ic.className = err ? "fa-solid fa-circle-exclamation" : "fa-solid fa-circle-check";
+  ic.className = err ? "fa-solid fa-circle-exclamation" : "fa-solid fa-circle-check";
   t.classList.add("show");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(function () { t.classList.remove("show"); }, 2800);
 };
 
 window.switchAuthTab = function(t) {
-  var lBtn = document.getElementById("loginTabBtn");
-  var sBtn = document.getElementById("signupTabBtn");
-  var lSec = document.getElementById("loginSection");
-  var sSec = document.getElementById("signupSection");
-  if (lBtn) lBtn.classList.toggle("active", t === "login");
-  if (sBtn) sBtn.classList.toggle("active", t === "signup");
-  if (lSec) lSec.style.display = (t === "login") ? "flex" : "none";
-  if (sSec) sSec.style.display = (t === "signup") ? "flex" : "none";
+  document.getElementById("loginTabBtn").classList.toggle("active", t === "login");
+  document.getElementById("signupTabBtn").classList.toggle("active", t === "signup");
+  document.getElementById("loginSection").style.display = (t === "login") ? "flex" : "none";
+  document.getElementById("signupSection").style.display = (t === "signup") ? "flex" : "none";
 };
 
 window.switchMainTab = function(tabName) {
@@ -386,25 +378,15 @@ window.switchMainTab = function(tabName) {
     if (el) el.style.display = "none";
   });
 
-  var home = document.getElementById("tabContentHome");
-  var bookings = document.getElementById("tabContentBookings");
-  var tracker = document.getElementById("tabContentTracker");
-  var support = document.getElementById("tabContentSupport");
+  if (tabName === "home") document.getElementById("tabContentHome").style.display = "block";
+  if (tabName === "bookings") document.getElementById("tabContentBookings").style.display = "block";
+  if (tabName === "tracker") document.getElementById("tabContentTracker").style.display = "block";
+  if (tabName === "support") document.getElementById("tabContentSupport").style.display = "block";
 
-  if (tabName === "home" && home) home.style.display = "block";
-  if (tabName === "bookings" && bookings) bookings.style.display = "block";
-  if (tabName === "tracker" && tracker) tracker.style.display = "block";
-  if (tabName === "support" && support) support.style.display = "block";
-
-  var nHome = document.getElementById("navTabHome");
-  var nBookings = document.getElementById("navTabBookings");
-  var nTracker = document.getElementById("navTabTracker");
-  var nSupport = document.getElementById("navTabSupport");
-
-  if (nHome) nHome.classList.toggle("active", tabName === "home");
-  if (nBookings) nBookings.classList.toggle("active", tabName === "bookings");
-  if (nTracker) nTracker.classList.toggle("active", tabName === "tracker");
-  if (nSupport) nSupport.classList.toggle("active", tabName === "support");
+  document.getElementById("navTabHome").classList.toggle("active", tabName === "home");
+  document.getElementById("navTabBookings").classList.toggle("active", tabName === "bookings");
+  document.getElementById("navTabTracker").classList.toggle("active", tabName === "tracker");
+  document.getElementById("navTabSupport").classList.toggle("active", tabName === "support");
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
@@ -420,4 +402,593 @@ window.switchFaqLanguage = function(lang) {
               '<div class="faq-question-bar" onclick="toggleFaqItem(' + idx + ')">' +
                 '<span><strong>Q' + (idx + 1) + '.</strong> ' + qText + '</span>' +
                 '<i class="fa-solid fa-chevron-down"></i>' +
-   
+              '</div>' +
+              '<div class="faq-answer-content"><p>' + aText + '</p></div>' +
+            '</div>';
+  });
+  container.innerHTML = html;
+};
+
+window.toggleFaqItem = function(idx) {
+  var itemEl = document.getElementById("faqItem_" + idx);
+  if (!itemEl) return;
+  var isOpen = itemEl.classList.contains("active");
+  document.querySelectorAll(".faq-item").forEach(function(el) { el.classList.remove("active"); });
+  if (!isOpen) itemEl.classList.add("active");
+};
+
+window.autoGenerateCompanyCode = function() {
+  var code = Math.floor(1000 + Math.random() * 9000).toString();
+  document.getElementById("regCompanyCode").value = code;
+  window.showToast("4-Digit Code Generated: " + code, false);
+};
+
+window.initiateSignup = function() {
+  var c = (document.getElementById("regCompanyName").value || "").trim();
+  var tp = document.getElementById("regCompanyType").value;
+  var p = (document.getElementById("regPhone").value || "").trim();
+  var code = (document.getElementById("regCompanyCode").value || "").trim();
+  var chk = document.getElementById("regAgreeTC");
+
+  if (!c || !tp || p.length !== 10 || !code) return window.showToast("Sabhi details bhariye!", true);
+  if (code.length !== 4 || isNaN(code)) return window.showToast("Company Code strictly 4-digit number hona chahiye!", true);
+  if (!chk || !chk.checked) return window.showToast("Terms & Conditions par tick karein!", true);
+
+  var u = { companyName: c, companyType: tp, mobile: p, companyCode: code, registeredAt: Date.now() };
+  var database = getDB();
+  if (database) {
+    database.ref("registered_companies/" + p).once("value", function (s) {
+      if (s.exists()) return window.showToast("Mobile pehle se registered hai! Sign In karein.", true);
+      database.ref("registered_companies/" + p).set(u, function (err) {
+        if (err) window.showToast("Error: " + err.message, true);
+        else {
+          localStorage.setItem("dwiti_user", JSON.stringify(u));
+          launchPortal(u);
+        }
+      });
+    });
+  } else {
+    localStorage.setItem("dwiti_user", JSON.stringify(u));
+    launchPortal(u);
+  }
+};
+
+window.initiateLogin = function() {
+  var c = (document.getElementById("loginCompanyName").value || "").trim();
+  var p = (document.getElementById("loginPhone").value || "").trim();
+  var code = (document.getElementById("loginCompanyCode").value || "").trim();
+  var chk = document.getElementById("loginAgreeTC");
+
+  if (!c || p.length !== 10 || !code) return window.showToast("Company Name, Mobile aur Code dalein!", true);
+  if (code.length !== 4) return window.showToast("Company Code 4-digit ka hi hona chahiye!", true);
+  if (!chk || !chk.checked) return window.showToast("Terms & Conditions par tick karein!", true);
+
+  var database = getDB();
+  if (database) {
+    database.ref("registered_companies/" + p).once("value", function (s) {
+      if (!s.exists()) {
+        window.showToast("Account nahi mila! Pehle Sign Up karein.", true);
+        window.switchAuthTab("signup");
+        document.getElementById("regCompanyName").value = c;
+        document.getElementById("regPhone").value = p;
+        return;
+      }
+      var u = s.val();
+      if (u.companyCode && u.companyCode !== code) return window.showToast("Galat 4-digit Code / PIN!", true);
+      var logged = { companyName: u.companyName || c, mobile: p, companyType: u.companyType || "" };
+      localStorage.setItem("dwiti_user", JSON.stringify(logged));
+      launchPortal(logged);
+    });
+  } else {
+    var fb = { companyName: c, mobile: p };
+    localStorage.setItem("dwiti_user", JSON.stringify(fb));
+    launchPortal(fb);
+  }
+};
+
+function launchPortal(u) {
+  currentSessionUser = u;
+  document.getElementById("authWrapper").style.display = "none";
+  document.getElementById("appWrapper").style.display = "block";
+  document.getElementById("currentUserDisplay").innerText = u.companyName;
+  var nameInput = document.getElementById("ticketFullName");
+  if (nameInput) nameInput.value = u.companyName;
+  loadCompanyBookings(u.mobile);
+  listenLRToken();
+  window.switchFaqLanguage("hi");
+  loadDefaultConsignorMemory();
+
+  var savedTheme = localStorage.getItem("dwiti_selected_theme") || "theme-navy";
+  window.changeAppTheme(savedTheme);
+}
+
+window.logout = function() { localStorage.removeItem("dwiti_user"); location.reload(); };
+
+window.directCallLatikesh = function(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  try { window.open("tel:8149448985", "_top"); } catch (err) { window.location.href = "tel:8149448985"; }
+};
+
+window.directWhatsappLatikesh = function(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  window.open("https://wa.me/918149448985?text=Hello%20Latikesh%2C%20I%20need%20help%20with%20DWITI%20Logistics%20Booking.", "_blank");
+};
+
+window.callAssignedDriver = function() {
+  if (!bookingData) return;
+  var st = (bookingData.trackingStatus || "Booking Confirmed").toLowerCase();
+  if (st.indexOf("driver assign") === -1 && st.indexOf("pickup complete") === -1 && st.indexOf("delivered") === -1) {
+    return window.showToast("Driver assign hone ke baad hi call option enable hoga!", true);
+  }
+  window.open("tel:" + (bookingData.driverPhone || "8149448985"), "_top");
+};
+
+window.handleSupportTicketSubmit = function(e) {
+  e.preventDefault();
+  var fullName = document.getElementById("ticketFullName").value.trim();
+  var lrToken = document.getElementById("ticketLrSelect").value;
+  var category = document.getElementById("ticketCategory").value;
+  var desc = document.getElementById("ticketDescription").value.trim();
+
+  if (!fullName || !lrToken || !category || !desc) return window.showToast("Sabhi fields bhariye!", true);
+
+  var msg = "*DWITI Support Ticket (Response in 15 Min)*%0A*Name:* " + fullName + "%0A*LR Token:* " + lrToken + "%0A*Category:* " + category + "%0A*Issue Details:* " + desc;
+  window.open("https://wa.me/918149448985?text=" + msg, "_blank");
+  window.showToast("Ticket Created! Dispatcher will contact in 15 mins.", false);
+  document.getElementById("supportTicketForm").reset();
+  if (currentSessionUser) document.getElementById("ticketFullName").value = currentSessionUser.companyName;
+};
+
+window.openAddPartyModal = function(type) {
+  if (!currentSessionUser || !currentSessionUser.mobile) return window.showToast("Pehle Login karein!", true);
+  activePartyModalType = type;
+  document.getElementById("addPartyForm").reset();
+  document.getElementById("addPartyModalTitleText").innerText = (type === "consignor") ? "Add Consignor Party" : "Add Consignee Party";
+  document.getElementById("popDistanceGroup").style.display = (type === "consignor") ? "none" : "block";
+  document.getElementById("addPartyModalOverlay").style.display = "flex";
+};
+
+window.closeAddPartyModal = function() { document.getElementById("addPartyModalOverlay").style.display = "none"; };
+
+window.handlePartySaveSubmit = function(e) {
+  e.preventDefault();
+  if (!currentSessionUser || !currentSessionUser.mobile) return window.showToast("Pehle Login karein!", true);
+
+  var name = document.getElementById("popPartyName").value.trim();
+  var phone = document.getElementById("popPartyPhone").value.trim();
+  var gst = document.getElementById("popPartyGst").value.trim();
+  var city = document.getElementById("popPartyCity").value.trim();
+  var dist = document.getElementById("popPartyDistance").value.trim();
+  var map = document.getElementById("popPartyMap").value.trim();
+  var address = document.getElementById("popPartyAddress").value.trim();
+
+  if (!name || !phone || !city || !map || !address) return window.showToast("Map link aur sabhi required fields bhariye!", true);
+
+  var partyObj = { name: name, phone: phone, gst: gst || "N/A", city: city, map: map, address: address, distance: dist || "0", savedAt: Date.now() };
+  var database = getDB();
+  var refPath = (activePartyModalType === "consignor") ? "consignor_parties" : "consignee_parties";
+
+  if (database) {
+    database.ref("companies/" + currentSessionUser.mobile + "/" + refPath + "/" + phone).set(partyObj, function(err) {
+      if (err) window.showToast("Error: " + err.message, true);
+      else {
+        window.showToast(activePartyModalType.toUpperCase() + " Party Saved Successfully!", false);
+        window.closeAddPartyModal();
+        applyPartyToForm(activePartyModalType, partyObj);
+      }
+    });
+  }
+};
+
+window.openPartyModal = function(type) {
+  if (!currentSessionUser || !currentSessionUser.mobile) return window.showToast("Pehle Login karein!", true);
+  activePartyModalType = type;
+  document.getElementById("partyModalTitleText").innerText = (type === "consignor") ? "Consignor Parties List" : "Consignee Parties List";
+  var cnt = document.getElementById("partyModalContent");
+  cnt.innerHTML = '<div style="text-align:center;padding:20px;">Loading parties...</div>';
+  document.getElementById("partyModalOverlay").style.display = "flex";
+
+  var database = getDB();
+  if (database) {
+    var refPath = (type === "consignor") ? "consignor_parties" : "consignee_parties";
+    database.ref("companies/" + currentSessionUser.mobile + "/" + refPath).once("value", function (snap) {
+      if (!snap.exists()) {
+        cnt.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;">Koi saved party nahi mili. Pehle Add karein.</div>';
+        return;
+      }
+      var h = "";
+      snap.forEach(function (ch) {
+        var p = ch.val(), k = ch.key;
+        h += '<div class="party-item-card" onclick="selectPartyItem(\'' + type + '\',\'' + k + '\')">' +
+             '<div class="party-details"><h4>' + p.name + '</h4><p>📞 ' + p.phone + ' | 📍 ' + p.city + (p.distance ? (' | 🛣 ' + p.distance + ' km') : '') + '</p></div>' +
+             '<div class="party-action-btns-wrap">' +
+                '<button type="button" class="btn-call-party-action" onclick="makeDirectPhoneCall(event, \'' + p.phone + '\')"><i class="fa-solid fa-phone"></i> Call</button>' +
+                '<button type="button" class="btn-del-party" onclick="deletePartyItem(event,\'' + type + '\',\'' + k + '\')"><i class="fa-solid fa-trash-can"></i></button>' +
+             '</div></div>';
+      });
+      cnt.innerHTML = h;
+    });
+  }
+};
+
+window.closePartyModal = function() { document.getElementById("partyModalOverlay").style.display = "none"; };
+
+window.selectPartyItem = function(type, k) {
+  var database = getDB();
+  if (!database || !currentSessionUser) return;
+  var refPath = (type === "consignor") ? "consignor_parties" : "consignee_parties";
+  database.ref("companies/" + currentSessionUser.mobile + "/" + refPath + "/" + k).once("value", function (s) {
+    if (s.exists()) {
+      applyPartyToForm(type, s.val());
+      window.closePartyModal();
+      window.showToast("Party Loaded!", false);
+    }
+  });
+};
+
+function applyPartyToForm(type, p) {
+  if (type === "consignor") {
+    localStorage.setItem("dwiti_default_consignor", JSON.stringify(p));
+
+    document.getElementById("senderName").value = p.name || "";
+    document.getElementById("senderPhone").value = p.phone || "";
+    document.getElementById("senderCity").value = p.city || "";
+    document.getElementById("senderGst").value = p.gst || "N/A";
+    document.getElementById("senderMap").value = p.map || "";
+    document.getElementById("senderAddress").value = p.address || "";
+    document.getElementById("dispSenderName").innerText = p.name;
+    document.getElementById("dispSenderDetails").innerHTML = '<i class="fa-solid fa-phone"></i> ' + p.phone + ' | <i class="fa-solid fa-location-dot"></i> ' + p.city + ' - ' + p.address;
+    document.getElementById("dispSenderGst").innerText = "GST: " + (p.gst || "N/A");
+    var mapLink = document.getElementById("dispSenderMap");
+    if (p.map) { mapLink.href = p.map; mapLink.style.display = "inline"; }
+    document.getElementById("consignorCardDisplay").style.display = "block";
+  } else {
+    document.getElementById("receiverNameOnly").value = p.name || "";
+    document.getElementById("receiverPhone").value = p.phone || "";
+    document.getElementById("receiverCity").value = p.city || "";
+    document.getElementById("distance").value = p.distance || "";
+    document.getElementById("receiverGst").value = p.gst || "N/A";
+    document.getElementById("receiverMap").value = p.map || "";
+    document.getElementById("receiverAddressOnly").value = p.address || "";
+    document.getElementById("dispReceiverName").innerText = p.name;
+    document.getElementById("dispReceiverDetails").innerHTML = '<i class="fa-solid fa-phone"></i> ' + p.phone + ' | <i class="fa-solid fa-location-dot"></i> ' + p.city + ' - ' + p.address;
+    document.getElementById("dispReceiverDist").innerText = "Distance: " + (p.distance || "0") + " km";
+    document.getElementById("dispReceiverGst").innerText = "GST: " + (p.gst || "N/A");
+    var mapLinkRec = document.getElementById("dispReceiverMap");
+    if (p.map) { mapLinkRec.href = p.map; mapLinkRec.style.display = "inline"; }
+    document.getElementById("consigneeCardDisplay").style.display = "block";
+    window.calculateRate();
+  }
+}
+
+window.deletePartyItem = function(e, type, k) {
+  e.stopPropagation();
+  var database = getDB();
+  if (database && currentSessionUser) {
+    var refPath = (type === "consignor") ? "consignor_parties" : "consignee_parties";
+    database.ref("companies/" + currentSessionUser.mobile + "/" + refPath + "/" + k).remove(function() {
+      window.openPartyModal(type);
+      window.showToast("Party Deleted!", false);
+    });
+  }
+};
+
+window.calculateRate = function() {
+  var d = parseFloat(document.getElementById("distance").value) || 0;
+  var w = parseFloat(document.getElementById("weight").value) || 0;
+  var b = 0;
+  if (d >= 10 && d <= 20) b = 600;
+  else if (d >= 21 && d <= 30) b = 700;
+  else if (d >= 31 && d <= 40) b = 800;
+  else if (d >= 41 && d <= 50) b = 850;
+  else if (d > 50) b = 900;
+  else if (d > 0) b = 500;
+  var ext = (w >= 51 && w <= 100) ? 100 : 0;
+  var tot = b + ext;
+  document.getElementById("totalPrice").innerText = "₹" + tot;
+  document.getElementById("breakdownText").innerText = "Base: ₹" + b + " + Surcharge: ₹" + ext + " = Total: ₹" + tot;
+};
+
+window.togglePaymentDetails = function() {
+  var m = document.getElementById("paymentMethod").value;
+  document.getElementById("onlineDetails").style.display = m.indexOf("Online") !== -1 ? "block" : "none";
+};
+
+window.openPaymentGateway = function() {
+  var a = document.getElementById("totalPrice").innerText.replace("₹", "");
+  if (!a || a === "0") return window.showToast("Consignee distance & weight enter karein!", true);
+  window.open("upi://pay?pa=latikesh1116-2@okhdfcbank&pn=DWITI%20LOGISTICS&am=" + a + "&cu=INR", "_blank");
+  if (confirm("Online payment complete ho gaya hai?")) {
+    payStatus = "Paid Online";
+    var st = document.getElementById("payStatus");
+    st.innerText = "Payment Status: Verified ✅";
+    st.className = "pay-badge paid";
+  }
+};
+
+window.bookAndSend = function() {
+  if (!document.getElementById("chkConsignmentReady").checked) return window.showToast("Pehle 09:00 AM readiness declaration box par tick karein!", true);
+
+  var sn = document.getElementById("senderName").value.trim();
+  var sp = document.getElementById("senderPhone").value.trim();
+  var sc = document.getElementById("senderCity").value.trim();
+  var sgst = document.getElementById("senderGst").value.trim();
+  var smap = document.getElementById("senderMap").value.trim();
+  var sa = document.getElementById("senderAddress").value.trim();
+
+  var rn = document.getElementById("receiverNameOnly").value.trim();
+  var rp = document.getElementById("receiverPhone").value.trim();
+  var rc = document.getElementById("receiverCity").value.trim();
+  var rgst = document.getElementById("receiverGst").value.trim();
+  var rmap = document.getElementById("receiverMap").value.trim();
+  var ra = document.getElementById("receiverAddressOnly").value.trim();
+
+  var ds = document.getElementById("distance").value.trim();
+  var wt = document.getElementById("weight").value.trim();
+  var numArt = document.getElementById("numArticles").value.trim();
+  var packType = document.getElementById("packagingType").value;
+  var invNo = document.getElementById("invoiceNo").value.trim();
+  var invVal = document.getElementById("invoiceVal").value.trim();
+  var gt = document.getElementById("goodsType").value.trim();
+  var pm = document.getElementById("paymentMethod").value;
+  var pr = document.getElementById("totalPrice").innerText;
+
+  var ewayReq = document.querySelector('input[name="ewayToggle"]:checked').value;
+  var ewayNo = document.getElementById("ewayBillNo").value.trim();
+
+  if (!sn || !sp || !smap || !rn || !rp || !rmap || !ds || !wt || !numArt || !packType || !gt || !pm) return window.showToast("Consignor aur Consignee map link aur saare details select/add karein!", true);
+  if (ewayReq === "yes" && !ewayNo) return window.showToast("E-Way Bill Number enter karein!", true);
+
+  var userMobile = currentSessionUser ? currentSessionUser.mobile : sp;
+  var currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  var currentDateStr = new Date().toLocaleDateString();
+
+  bookingData = {
+    companyMobile: userMobile,
+    trackingId: curTracking,
+    date: currentDateStr,
+    time: currentTimeStr,
+    bookingTime: currentDateStr + " " + currentTimeStr,
+    senderName: sn, senderPhone: sp, senderCity: sc, senderGst: sgst, senderMap: smap, senderAddress: sa,
+    receiverName: rn, receiverPhone: rp, receiverCity: rc, receiverGst: rgst, receiverMap: rmap, receiverAddress: ra,
+    distance: ds, weight: wt, numArticles: numArt, packagingType: packType, invoiceNo: invNo, invoiceVal: invVal,
+    goodsType: gt, ewayBillRequired: ewayReq, ewayBillNo: ewayNo || "N/A", totalPrice: pr, paymentMethod: pm,
+    paymentStatus: pm.indexOf("Online") !== -1 ? payStatus : pm, trackingStatus: "Booking Confirmed", timestamp: Date.now()
+  };
+
+  var btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  btn.innerText = "Saving Consignment...";
+
+  var database = getDB();
+  database.ref("bookings").push().set(bookingData)
+    .then(function () {
+      document.getElementById("bookingForm").style.display = "none";
+      document.getElementById("successModal").style.display = "block";
+      document.getElementById("successText").innerText = "Booking " + curTracking + " Registered Successfully!";
+      window.showToast("Booking Registered!", false);
+      btn.disabled = false;
+      btn.innerText = "Confirm Consignment";
+      loadCompanyBookings(userMobile);
+      updateLiveTrackingBubble(bookingData);
+      window.pushHeaderNotification("📦 New Booking Confirmed! Token: " + curTracking + " to " + rn, true);
+    })
+    .catch(function (err) {
+      btn.disabled = false;
+      btn.innerText = "Confirm Consignment";
+      window.showToast("Error: " + err.message, true);
+    });
+};
+
+window.onTrackingLrChange = function(lr) { if (companyBookingsCache[lr]) updateLiveTrackingBubble(companyBookingsCache[lr]); };
+
+window.updateLiveTrackingBubble = function(b) {
+  if (!b) return;
+  bookingData = b;
+  var selector = document.getElementById("trackingLrSelector");
+  if (selector && selector.value !== b.trackingId) selector.value = b.trackingId;
+
+  document.getElementById("trkReceiverName").innerText = b.receiverName + " (" + (b.receiverCity || "Navi Mumbai") + ")";
+  var statusText = b.trackingStatus || "Booking Confirmed";
+  document.getElementById("trkStatusBadge").innerText = statusText;
+
+  ['vStep1', 'vStep2', 'vStep3', 'vStep4'].forEach(function(id) { document.getElementById(id).classList.remove("active"); });
+  ['vLine1', 'vLine2', 'vLine3'].forEach(function(id) { document.getElementById(id).classList.remove("active"); });
+
+  document.getElementById("vTime1").innerText = b.bookingTime || (b.date + " " + b.time) || "-";
+  document.getElementById("vTime2").innerText = b.driverAssignTime || "-";
+  document.getElementById("vTime3").innerText = b.pickupTime || "-";
+  document.getElementById("vTime4").innerText = b.deliveryTime || "-";
+
+  var statusNorm = statusText.toLowerCase();
+  document.getElementById("vStep1").classList.add("active");
+  var canCallDriver = false;
+
+  if (statusNorm.indexOf("driver assign") !== -1) {
+    document.getElementById("vStep2").classList.add("active");
+    document.getElementById("vLine1").classList.add("active");
+    canCallDriver = true;
+  } else if (statusNorm.indexOf("pickup complete") !== -1) {
+    document.getElementById("vStep2").classList.add("active");
+    document.getElementById("vStep3").classList.add("active");
+    document.getElementById("vLine1").classList.add("active");
+    document.getElementById("vLine2").classList.add("active");
+    canCallDriver = true;
+    window.pushHeaderNotification("🚚 Pickup Completed for " + b.trackingId + " (" + b.receiverName + ")", true);
+  } else if (statusNorm.indexOf("delivered") !== -1) {
+    document.getElementById("vStep2").classList.add("active");
+    document.getElementById("vStep3").classList.add("active");
+    document.getElementById("vStep4").classList.add("active");
+    document.getElementById("vLine1").classList.add("active");
+    document.getElementById("vLine2").classList.add("active");
+    document.getElementById("vLine3").classList.add("active");
+    canCallDriver = true;
+    window.pushHeaderNotification("🎉 Shipment " + b.trackingId + " DELIVERED to " + b.receiverName + "!", true);
+  }
+
+  var btnCall = document.getElementById("btnCallDriver");
+  var textCall = document.getElementById("callDriverText");
+  if (canCallDriver) {
+    btnCall.disabled = false;
+    btnCall.classList.remove("disabled");
+    textCall.innerText = "Call Driver (" + (b.driverPhone || "Assigned") + ")";
+  } else {
+    btnCall.disabled = true;
+    btnCall.classList.add("disabled");
+    textCall.innerText = "Call Driver (Assign Pending)";
+  }
+
+  var proofBox = document.getElementById("trackingProofContainer");
+  var proofHtml = "";
+  if (b.pickupImg) {
+    proofHtml += '<div class="proof-img-item"><a href="' + b.pickupImg + '" target="_blank"><img src="' + b.pickupImg + '"/></a><div><span style="font-size:10px;font-weight:700;color:#fff;">Pickup Photo</span><a href="' + b.pickupImg + '" download target="_blank" class="btn-proof-download"><i class="fa-solid fa-download"></i> Download</a></div></div>';
+  }
+  if (b.deliveryImg) {
+    proofHtml += '<div class="proof-img-item"><a href="' + b.deliveryImg + '" target="_blank"><img src="' + b.deliveryImg + '"/></a><div><span style="font-size:10px;font-weight:700;color:#fff;">Delivery Photo</span><a href="' + b.deliveryImg + '" download target="_blank" class="btn-proof-download"><i class="fa-solid fa-download"></i> Download</a></div></div>';
+  }
+  if (proofHtml !== "") { proofBox.style.display = "flex"; proofBox.innerHTML = proofHtml; } else { proofBox.style.display = "none"; }
+};
+
+window.filterBookingsList = function() {
+  var query = (document.getElementById("bookingSearchInput").value || "").toLowerCase().trim();
+  var filterStatus = document.getElementById("bookingStatusFilter").value;
+  var cnt = document.getElementById("companyBookingsList");
+
+  if (!rawBookingsList.length) return;
+  var filtered = rawBookingsList.filter(function(b) {
+    var bStatus = b.trackingStatus || "Booking Confirmed";
+    var statusMatch = (filterStatus === "ALL") || (bStatus.toLowerCase().indexOf(filterStatus.toLowerCase()) !== -1);
+    var searchMatch = !query || (b.trackingId && b.trackingId.toLowerCase().indexOf(query) !== -1) || (b.receiverName && b.receiverName.toLowerCase().indexOf(query) !== -1) || (b.receiverCity && b.receiverCity.toLowerCase().indexOf(query) !== -1);
+    return statusMatch && searchMatch;
+  });
+
+  if (!filtered.length) { cnt.innerHTML = '<div style="text-align:center;color:#94a3b8;padding:15px;">Koi booking match nahi hui.</div>'; return; }
+
+  var h = "";
+  filtered.forEach(function (b) {
+    var curStatus = b.trackingStatus || 'Booking Confirmed';
+    h += '<div class="booking-item-box">' +
+      '<div class="booking-item-top"><span class="lr-badge"><i class="fa-solid fa-receipt"></i> ' + (b.trackingId || "LR") + '</span><span style="font-size:11px; font-weight:700; color:var(--text-muted);"><i class="fa-regular fa-clock"></i> ' + (b.date || '') + '</span></div>' +
+      '<div class="booking-item-middle"><strong>To:</strong> ' + b.receiverName + ' (' + (b.receiverCity || "Navi Mumbai") + ' - ' + (b.distance || '0') + 'km)</div>' +
+      '<div class="booking-item-bottom"><span>' + (b.goodsType || "Goods") + ' (' + (b.numArticles || 1) + ' ' + (b.packagingType || "Pkgs") + ') • ' + b.weight + 'kg</span><strong>' + b.totalPrice + ' (' + b.paymentMethod + ')</strong></div>' +
+      '<div style="display:flex; gap:6px; align-items:center; margin-top:6px;">' +
+        '<button type="button" class="btn btn-print-lr" style="flex:1; padding:6px 8px; font-size:11px;" onclick=\'printLRDoc(companyBookingsCache["' + b.trackingId + '"])\'><i class="fa-solid fa-print"></i> Print LR</button>' +
+        '<div class="booking-card-green-status"><i class="fa-solid fa-circle-check"></i> ' + curStatus + '</div>' +
+        '<button type="button" class="btn btn-upi" style="flex:1; padding:6px 8px; font-size:11px;" onclick=\'updateLiveTrackingBubble(companyBookingsCache["' + b.trackingId + '"]); switchMainTab("tracker");\'><i class="fa-solid fa-satellite-dish"></i> Track</button>' +
+      '</div></div>';
+  });
+  cnt.innerHTML = h;
+};
+
+function loadCompanyBookings(mob) {
+  var cnt = document.getElementById("companyBookingsList");
+  var selector = document.getElementById("trackingLrSelector");
+  var ticketSelect = document.getElementById("ticketLrSelect");
+  var database = getDB();
+  if (!database || !cnt || !mob) return;
+
+  database.ref("bookings").on("value", function (s) {
+    if (!s.exists()) {
+      cnt.innerHTML = '<div style="text-align:center;color:#94a3b8;padding:15px;">Koi booking nahi mili.</div>';
+      if (selector) selector.innerHTML = '<option value="">No LR Tokens Found</option>';
+      if (ticketSelect) ticketSelect.innerHTML = '<option value="">No LR Available</option>';
+      return;
+    }
+    rawBookingsList = [];
+    companyBookingsCache = {};
+
+    s.forEach(function (c) {
+      var b = c.val();
+      if (b && (b.companyMobile === mob || b.senderPhone === mob)) {
+        rawBookingsList.push(b);
+        companyBookingsCache[b.trackingId] = b;
+      }
+    });
+
+    if (!rawBookingsList.length) {
+      cnt.innerHTML = '<div style="text-align:center;color:#94a3b8;padding:15px;">Is company ki koi booking nahi hai.</div>';
+      return;
+    }
+
+    rawBookingsList.reverse();
+    if (selector) {
+      var selHtml = "";
+      rawBookingsList.forEach(function(b) { selHtml += '<option value="' + b.trackingId + '">' + b.trackingId + ' (' + (b.receiverCity || 'Destination') + ')</option>'; });
+      selector.innerHTML = selHtml;
+    }
+    if (ticketSelect) {
+      var ticketHtml = '<option value="">-- Select Relevant LR Token --</option>';
+      rawBookingsList.forEach(function(b) { ticketHtml += '<option value="' + b.trackingId + '">' + b.trackingId + ' - To: ' + b.receiverName + '</option>'; });
+      ticketSelect.innerHTML = ticketHtml;
+    }
+
+    if (!bookingData || !companyBookingsCache[bookingData.trackingId]) updateLiveTrackingBubble(rawBookingsList[0]);
+    else updateLiveTrackingBubble(companyBookingsCache[bookingData.trackingId]);
+    filterBookingsList();
+  });
+}
+
+window.printLRDoc = function(bData) {
+  var b = bData || bookingData;
+  if (!b) return window.showToast("Booking details nahi mili!", true);
+
+  var printContainer = document.getElementById("printArea");
+  var copyTypes = ["1. CONSIGNOR COPY", "2. POD COPY", "3. CONSIGNEE COPY"];
+  var fullHtml = '<div class="a4-page-grid">';
+
+  copyTypes.forEach(function(copyName) {
+    fullHtml += '<div class="lr-copy-card"><div class="lr-header"><div class="lr-title-center"><img src="https://i.postimg.cc/CL8jFGXK/IMG-20261012-WA0015-2.jpg" class="print-brand-logo"><p>SAME DAY EXPRESS DELIVERY KALHER TO NAVI MUMBAI</p><span><strong>Contact:</strong> 8149448985 | Kalher, Bhiwandi</span></div><div class="lr-meta"><span class="lr-type-badge">' + copyName + '</span><div class="lr-no"><strong>LR:</strong> ' + b.trackingId + '</div><div class="lr-date"><strong>Date:</strong> ' + b.date + ' ' + b.time + '</div></div></div>' +
+      '<div class="lr-body-grid"><div class="lr-box"><h4>CONSIGNOR (SENDER)</h4><strong>' + b.senderName + '</strong><br>Ph: ' + b.senderPhone + ' | GST: ' + (b.senderGst || 'N/A') + '<br>Addr: ' + (b.senderAddress || 'Kalher Hub') + '</div><div class="lr-box"><h4>CONSIGNEE (RECEIVER)</h4><strong>' + b.receiverName + '</strong><br>Ph: ' + b.receiverPhone + ' | GST: ' + (b.receiverGst || 'N/A') + '<br>City/Addr: ' + b.receiverCity + ' (' + (b.distance || '0') + ' km) - ' + (b.receiverAddress || 'Destination Area') + '</div></div>' +
+      '<table class="lr-table"><thead><tr><th>Articles / Pack</th><th>Goods Description</th><th>Weight</th><th>E-Way Bill No</th></tr></thead><tbody><tr><td><strong>' + b.numArticles + '</strong> (' + b.packagingType + ')</td><td>' + b.goodsType + '</td><td><strong>' + b.weight + ' kg</strong></td><td>' + (b.ewayBillNo || 'N/A') + '</td></tr></tbody><thead><tr><th>Invoice Val</th><th>Freight Amt</th><th>Goods Type</th><th>Payment Type</th></tr></thead><tbody><tr><td>₹' + (b.invoiceVal || '0') + '</td><td><strong style="font-size:10.5px;">' + b.totalPrice + '</strong></td><td>' + b.goodsType + '</td><td><strong>' + b.paymentMethod + '</strong></td></tr></tbody></table>' +
+      '<div class="lr-footer"><div>*Subject to Bhiwandi Jurisdiction. Booked at owner\'s risk.</div><div class="lr-sign-box">Consignor / Driver Sign</div><div class="lr-sign-box">For DWITI LOGISTICS</div></div></div>';
+  });
+
+  fullHtml += '</div>';
+  printContainer.innerHTML = fullHtml;
+  var originalTitle = document.title;
+  document.title = (b.trackingId || "DWITI-LR").replace(/[^a-zA-Z0-9_-]/g, "_");
+  window.print();
+  setTimeout(function() { document.title = originalTitle; }, 1000);
+};
+
+window.resetFormForNewBooking = function() {
+  document.getElementById("successModal").style.display = "none";
+  document.getElementById("bookingForm").style.display = "flex";
+  document.getElementById("consigneeCardDisplay").style.display = "none";
+  document.getElementById("weight").value = "";
+  document.getElementById("numArticles").value = "";
+  document.getElementById("packagingType").value = "";
+  document.getElementById("invoiceNo").value = "";
+  document.getElementById("invoiceVal").value = "";
+  document.getElementById("goodsType").value = "";
+  document.getElementById("ewayBillNo").value = "";
+  document.getElementById("chkConsignmentReady").checked = false;
+  window.toggleSubmitButtonReadiness();
+  window.toggleEwayField(false);
+  document.getElementById("totalPrice").innerText = "₹0";
+  listenLRToken();
+  loadDefaultConsignorMemory();
+};
+
+window.sendWhatsApp = function() {
+  if (!bookingData) return;
+  var m = "*New Booking - DWITI LOGISTICS*%0A*LR:* " + bookingData.trackingId + "%0A*From:* " + bookingData.senderName + "%0A*To:* " + bookingData.receiverName + "%0A*Distance:* " + bookingData.distance + " km%0A*Articles:* " + bookingData.numArticles + " (" + bookingData.packagingType + ")%0A*E-Way Bill:* " + (bookingData.ewayBillNo || "N/A") + "%0A*Total:* " + bookingData.totalPrice;
+  window.open("https://wa.me/918149448985?text=" + m, "_blank");
+};
+
+window.addEventListener("load", function () {
+  getDB();
+  listenLRToken();
+  window.switchFaqLanguage("hi");
+  var tickerText = document.getElementById("notifTickerText");
+  if (tickerText) tickerText.innerText = DEFAULT_NOTIF_TEXT;
+  var s = localStorage.getItem("dwiti_user");
+  if (s) {
+    try {
+      currentSessionUser = JSON.parse(s);
+      launchPortal(currentSessionUser);
+    } catch (e) {}
+  }
+  var savedTheme = localStorage.getItem("dwiti_selected_theme") || "theme-navy";
+  window.changeAppTheme(savedTheme);
+});
