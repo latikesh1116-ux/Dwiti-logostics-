@@ -94,7 +94,7 @@ body { background-color: var(--bg-page); color: var(--text-main); min-height: 10
     touch-action: manipulation !important;
 }
 
-/* MODAL FIX - PREVENTS INVISIBLE TOUCH BLOCKING */
+/* MODAL OVERLAY SETUP */
 .party-modal-overlay { 
     position: fixed; 
     top: 0; 
@@ -501,13 +501,15 @@ input:focus, select:focus { border-color: var(--primary); }
     .cutoff-badge-box { width: 100%; }
 }
 
-/* =========================================================
-   UNIVERSAL 1-PAGE 3X LR ENGINE (A4 + LETTER SAFE FIT)
-   ========================================================= */
+/* =====================================================================
+   MATHEMATICAL 1-PAGE 3X LR ENGINE (0.5cm TOP/BOTTOM/INTERNAL GAPS)
+   Formula: 0.5cm Top + 3x Copies (86.3mm ea) + 2x Gaps (0.5cm) + 0.5cm Bottom
+   Total Container Height = 278.9mm (Fits 100% on both Letter & A4)
+   ===================================================================== */
 @media print {
     @page { 
         size: auto;
-        margin: 0 !important;
+        margin: 0 !important; 
     }
     
     *, *:before, *:after {
@@ -520,7 +522,7 @@ input:focus, select:focus { border-color: var(--primary); }
         margin: 0 !important; 
         padding: 0 !important; 
         background: #ffffff !important; 
-        overflow: hidden !important;
+        overflow: hidden !important; 
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
@@ -532,10 +534,10 @@ input:focus, select:focus { border-color: var(--primary); }
     .print-only { 
         display: block !important; 
         width: 100% !important;
-        height: 100vh !important;
-        max-height: 100vh !important;
-        padding: 4mm 6mm !important;
-        margin: 0 auto !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0.5cm 0.6cm !important; /* 0.5cm top & bottom gap */
+        box-sizing: border-box !important;
         page-break-after: avoid !important;
         page-break-inside: avoid !important;
     }
@@ -546,17 +548,19 @@ input:focus, select:focus { border-color: var(--primary); }
         justify-content: space-between !important; 
         height: 100% !important;
         max-height: 100% !important;
-        gap: 3mm !important;
+        gap: 0.5cm !important; /* 0.5cm gap between each copy */
+        box-sizing: border-box !important;
         page-break-after: avoid !important;
         page-break-inside: avoid !important;
     }
     
     .lr-copy-card { 
         flex: 1 1 0 !important;
-        height: 32% !important;
-        max-height: 32% !important;
-        border: 1.5px solid #000 !important; 
-        padding: 4px 8px !important; 
+        height: calc((100% - 1cm) / 3) !important; /* Exactly 3 equal copies */
+        max-height: calc((100% - 1cm) / 3) !important;
+        border: 1.2px solid #000 !important; 
+        padding: 3px 6px !important; 
+        box-sizing: border-box !important;
         display: flex !important; 
         flex-direction: column !important; 
         justify-content: space-between !important; 
@@ -569,12 +573,12 @@ input:focus, select:focus { border-color: var(--primary); }
     
     .lr-header { 
         border-bottom: 1.2px solid #000; 
-        padding-bottom: 2px; 
-        margin-bottom: 2px; 
+        padding-bottom: 1px; 
+        margin-bottom: 1px; 
         display: flex; 
         align-items: center; 
         justify-content: space-between; 
-        min-height: 36px; 
+        min-height: 32px; 
     }
     
     .lr-title-center { 
@@ -587,21 +591,21 @@ input:focus, select:focus { border-color: var(--primary); }
     }
     
     .print-brand-logo { 
-        max-height: 22px; 
+        max-height: 20px; 
         width: auto; 
         object-fit: contain; 
     }
     
     .lr-title-center p { 
-        font-size: 9px !important; 
+        font-size: 8.5px !important; 
         font-weight: 800; 
         margin: 0; 
         color: #000; 
-        letter-spacing: 0.3px; 
+        letter-spacing: 0.2px; 
     }
     
     .lr-title-center span { 
-        font-size: 8px !important; 
+        font-size: 7.5px !important; 
         color: #000; 
     }
     
@@ -611,15 +615,15 @@ input:focus, select:focus { border-color: var(--primary); }
         align-items: flex-end; 
         justify-content: center; 
         text-align: right; 
-        font-size: 9px !important; 
-        line-height: 1.2; 
+        font-size: 8.5px !important; 
+        line-height: 1.15; 
     }
     
     .lr-type-badge { 
         display: inline-block; 
         border: 1px solid #000; 
-        padding: 1px 5px; 
-        font-size: 8px !important; 
+        padding: 1px 4px; 
+        font-size: 7.5px !important; 
         font-weight: 800; 
         text-transform: uppercase; 
         margin-bottom: 1px; 
@@ -629,19 +633,19 @@ input:focus, select:focus { border-color: var(--primary); }
     .lr-body-grid { 
         display: grid; 
         grid-template-columns: 1fr 1fr; 
-        gap: 8px; 
+        gap: 6px; 
         border-bottom: 1px solid #000; 
-        padding: 2px 0; 
+        padding: 1px 0; 
         margin: 1px 0; 
     }
     
     .lr-box { 
-        font-size: 9.5px !important; 
-        line-height: 1.25; 
+        font-size: 8.5px !important; 
+        line-height: 1.2; 
     }
     
     .lr-box h4 {
-        font-size: 10px !important;
+        font-size: 9px !important; 
         margin: 0 0 1px 0;
         text-decoration: underline;
     }
@@ -654,10 +658,10 @@ input:focus, select:focus { border-color: var(--primary); }
     
     .lr-table th, .lr-table td { 
         border: 1px solid #000; 
-        padding: 2px 1px; 
+        padding: 1.5px 1px; 
         text-align: center; 
-        font-size: 9px !important; 
-        line-height: 1.2;
+        font-size: 8.5px !important; 
+        line-height: 1.15;
     }
     
     .lr-table th {
@@ -669,7 +673,7 @@ input:focus, select:focus { border-color: var(--primary); }
         display: flex; 
         justify-content: space-between; 
         align-items: flex-end; 
-        font-size: 7.5px !important; 
+        font-size: 7px !important; 
         padding-top: 1px; 
     }
     
