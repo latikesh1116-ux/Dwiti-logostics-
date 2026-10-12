@@ -502,14 +502,14 @@ input:focus, select:focus { border-color: var(--primary); }
 }
 
 /* =====================================================================
-   MATHEMATICAL 1-PAGE 3X LR ENGINE (0.5cm TOP/BOTTOM/INTERNAL GAPS)
-   Formula: 0.5cm Top + 3x Copies (86.3mm ea) + 2x Gaps (0.5cm) + 0.5cm Bottom
-   Total Container Height = 278.9mm (Fits 100% on both Letter & A4)
+   MATHEMATICAL 1-PAGE 3X LR ENGINE (A4 & LETTER AUTO-LOCK)
+   Formula: scale(0.90) compresses entire layout inside 265mm.
+   Zero overflow, single sheet guaranteed on both Letter and A4.
    ===================================================================== */
 @media print {
     @page { 
         size: auto;
-        margin: 0 !important; 
+        margin: 0mm !important;
     }
     
     *, *:before, *:after {
@@ -522,7 +522,7 @@ input:focus, select:focus { border-color: var(--primary); }
         margin: 0 !important; 
         padding: 0 !important; 
         background: #ffffff !important; 
-        overflow: hidden !important; 
+        overflow: hidden !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
@@ -534,32 +534,28 @@ input:focus, select:focus { border-color: var(--primary); }
     .print-only { 
         display: block !important; 
         width: 100% !important;
-        height: 100% !important;
-        margin: 0 !important;
-        padding: 0.5cm 0.6cm !important; /* 0.5cm top & bottom gap */
-        box-sizing: border-box !important;
+        margin: 0 auto !important;
+        padding: 0.25cm 0.5cm !important;
         page-break-after: avoid !important;
         page-break-inside: avoid !important;
+        transform: scale(0.90) !important;
+        transform-origin: top center !important;
     }
     
     .a4-page-grid { 
         display: flex !important; 
         flex-direction: column !important; 
-        justify-content: space-between !important; 
-        height: 100% !important;
-        max-height: 100% !important;
-        gap: 0.5cm !important; /* 0.5cm gap between each copy */
-        box-sizing: border-box !important;
+        justify-content: flex-start !important; 
+        gap: 0.35cm !important;
         page-break-after: avoid !important;
         page-break-inside: avoid !important;
     }
     
     .lr-copy-card { 
-        flex: 1 1 0 !important;
-        height: calc((100% - 1cm) / 3) !important; /* Exactly 3 equal copies */
-        max-height: calc((100% - 1cm) / 3) !important;
+        height: 80mm !important; 
+        max-height: 80mm !important;
         border: 1.2px solid #000 !important; 
-        padding: 3px 6px !important; 
+        padding: 2.5px 6px !important; 
         box-sizing: border-box !important;
         display: flex !important; 
         flex-direction: column !important; 
@@ -578,7 +574,7 @@ input:focus, select:focus { border-color: var(--primary); }
         display: flex; 
         align-items: center; 
         justify-content: space-between; 
-        min-height: 32px; 
+        min-height: 28px; 
     }
     
     .lr-title-center { 
@@ -591,13 +587,13 @@ input:focus, select:focus { border-color: var(--primary); }
     }
     
     .print-brand-logo { 
-        max-height: 20px; 
+        max-height: 18px; 
         width: auto; 
         object-fit: contain; 
     }
     
     .lr-title-center p { 
-        font-size: 8.5px !important; 
+        font-size: 8px !important; 
         font-weight: 800; 
         margin: 0; 
         color: #000; 
@@ -605,7 +601,7 @@ input:focus, select:focus { border-color: var(--primary); }
     }
     
     .lr-title-center span { 
-        font-size: 7.5px !important; 
+        font-size: 7px !important; 
         color: #000; 
     }
     
@@ -615,15 +611,15 @@ input:focus, select:focus { border-color: var(--primary); }
         align-items: flex-end; 
         justify-content: center; 
         text-align: right; 
-        font-size: 8.5px !important; 
-        line-height: 1.15; 
+        font-size: 8px !important; 
+        line-height: 1.1; 
     }
     
     .lr-type-badge { 
         display: inline-block; 
         border: 1px solid #000; 
         padding: 1px 4px; 
-        font-size: 7.5px !important; 
+        font-size: 7px !important; 
         font-weight: 800; 
         text-transform: uppercase; 
         margin-bottom: 1px; 
@@ -640,12 +636,12 @@ input:focus, select:focus { border-color: var(--primary); }
     }
     
     .lr-box { 
-        font-size: 8.5px !important; 
-        line-height: 1.2; 
+        font-size: 8px !important; 
+        line-height: 1.15; 
     }
     
     .lr-box h4 {
-        font-size: 9px !important; 
+        font-size: 8.5px !important; 
         margin: 0 0 1px 0;
         text-decoration: underline;
     }
@@ -658,10 +654,10 @@ input:focus, select:focus { border-color: var(--primary); }
     
     .lr-table th, .lr-table td { 
         border: 1px solid #000; 
-        padding: 1.5px 1px; 
+        padding: 1px; 
         text-align: center; 
-        font-size: 8.5px !important; 
-        line-height: 1.15;
+        font-size: 8px !important; 
+        line-height: 1.1;
     }
     
     .lr-table th {
@@ -673,7 +669,7 @@ input:focus, select:focus { border-color: var(--primary); }
         display: flex; 
         justify-content: space-between; 
         align-items: flex-end; 
-        font-size: 7px !important; 
+        font-size: 6.5px !important; 
         padding-top: 1px; 
     }
     
